@@ -31,7 +31,7 @@
 // define swtich const var
 enum control_switch
 {
-  SWITCH_ON=1, SWITCH_OFF=0
+    SWITCH_ON=1, SWITCH_OFF=0
 };
 
 // define commands id
@@ -64,16 +64,16 @@ enum module
 // the main configuration of car.
 struct car_config
 {
-  uchar interval_of_read_ps2_h;
-  uchar interval_of_read_ps2_l;
+    uchar interval_of_read_ps2_h;
+    uchar interval_of_read_ps2_l;
 };
 
 extern const struct car_config g_car_config;
 
 struct module_command_receiver
 {
-	void (*init)();
-	void (*update_state)(uint car_cmd);
+    void (*init)();
+    void (*update_state)(uint car_cmd);
 };
 
 extern void delay_time_ms(uint mil_sec);

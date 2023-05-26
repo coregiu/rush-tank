@@ -69,7 +69,13 @@ void main()
 
 	while (1)
 	{
-
+		// read ps2 command and set is_has_command/non_motor_cmd_times value.
+		uint commands[COMMANDS_LENGTH][2] = {{0}};
+		uint is_has_command = 0;
+		read_ps2(&is_has_command, commands);
+		// executet the commands.
+		execute_commands(is_has_command, commands); 
+		delay_time_ms(100);
 	}
 }
 
@@ -79,21 +85,18 @@ void main()
  */
 void time_0_isr(void) __interrupt 1
 {
-	if (delayTimes < EXE_PERIODS)
-	{
-		delayTimes++;
-		return;
-	}
-
 	// reset number of beginning.
 	TH0 = g_car_config.interval_of_read_ps2_h;
 	TL0 = g_car_config.interval_of_read_ps2_l;
-	
-	// read ps2 command and set is_has_command/non_motor_cmd_times value.
-	uint commands[COMMANDS_LENGTH][2] = {{0}};
-	uint is_has_command = 0;
-	read_ps2(&is_has_command, commands);
-	// executet the commands.
-	execute_commands(is_has_command, commands); 
-	delayTimes = 0;
+}
+
+/**
+ * timer 1 interrupt function.
+ * read ps2 command and execute it by 50ms interval.
+ */
+void time_1_isr(void) __interrupt 3
+{
+	// reset number of beginning.
+	TH0 = g_car_config.interval_of_read_ps2_h;
+	TL0 = g_car_config.interval_of_read_ps2_l;
 }

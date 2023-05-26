@@ -49,14 +49,14 @@ const uint command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MOD
 										      {3, 0xBF, COMMAND_LEFT_DOWN,   MODULE_MOTOR}, 
 										      {3, 0x7F, COMMAND_LEFT_LEFT,   MODULE_MOTOR}, 
 										      {3, 0xDF, COMMAND_LEFT_RIGHT,  MODULE_MOTOR}, 
-										      {4, 0xEF, COMMAND_RIGHT_TOP,   MODULE_SERVO}, 
-										      {4, 0xBF, COMMAND_RIGHT_DOWN,  MODULE_SERVO}, 
-										      {4, 0x7F, COMMAND_RIGHT_LEFT,  MODULE_SERVO}, 
-										      {4, 0xDF, COMMAND_RIGHT_RIGHT, MODULE_SERVO}, 
-										      {4, 0xFB, COMMAND_LEFT_1,      MODULE_SERVO}, 
+										      {4, 0xEF, COMMAND_RIGHT_TOP,   MODULE_MOTOR}, 
+										      {4, 0xBF, COMMAND_RIGHT_DOWN,  MODULE_MOTOR}, 
+										      {4, 0x7F, COMMAND_RIGHT_LEFT,  MODULE_MOTOR}, 
+										      {4, 0xDF, COMMAND_RIGHT_RIGHT, MODULE_MOTOR}, 
+										      {4, 0xFB, COMMAND_LEFT_1,      MODULE_MOTOR}, 
 										      {4, 0xFE, COMMAND_LEFT_2,      MODULE_MOTOR}, 
-										      {4, 0xF7, COMMAND_RIGHT_1,     MODULE_LED}, 
-										      {4, 0xFD, COMMAND_RIGHT_2,     MODULE_LED}};
+										      {4, 0xF7, COMMAND_RIGHT_1,     MODULE_MOTOR}, 
+										      {4, 0xFD, COMMAND_RIGHT_2,     MODULE_MOTOR}};
 
 uchar out[9];
 
