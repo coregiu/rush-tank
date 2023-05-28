@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # 项目名称
-set(PROJECT_NAME "RUCAR")
+set(PROJECT_NAME "RUKE")
 
 include (CMakeForceCompiler)
 set(CMAKE_SYSTEM_NAME Generic)

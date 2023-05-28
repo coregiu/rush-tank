@@ -10,10 +10,10 @@
 
 #include <controller.h>
 /* 71ms per period */
-#define READ_PS2_INTVAL_TIME_MS_H   0X00
-#define READ_PS2_INTVAL_TIME_MS_L   0X00
+#define READ_PS2_INTVAL_TIME_MS_H   0XFC
+#define READ_PS2_INTVAL_TIME_MS_L   0X66
 
-const struct car_config g_car_config = {0X00, 0X00, 0X00, 0X00};
+struct motor_config g_motor_config = {0XFC, 0X66, 100, 20};
 
 void delay_time_ms(uint mil_sec)
 {
@@ -30,25 +30,11 @@ void init_timer_0()
 {
 	// init timer0
 	TMOD |= 0X01;
-    TH0 = g_car_config.left_motor_period_h;
-    TL0 = g_car_config.left_motor_period_l; 
+    TH0 = g_motor_config.motor_period_h;
+    TL0 = g_motor_config.motor_period_l; 
 	ET0 = 1;
     TR0 = 1;
 	EA  = 1; //¿ªÆô×ÜÖÐ¶Ï
-}
-
-/**
- * init timer 0.
- */
-void init_timer_1()
-{
-	// init timer1
-	TMOD |= 0x10;			     
-	TH1 = g_car_config.right_motor_period_h;	 /* Init value */
-	TL1 = g_car_config.right_motor_period_l; 
-	ET1 = 1;                     /* enable timer1 interrupt */
-	TR1 = 1;  
-	EA  = 1;                      /* interupt enable */
 }
 
 /**
@@ -71,11 +57,10 @@ void main()
 	delay_time_ms(500);
 
 	init_timer_0();
-	init_timer_1();
 	init_uart();
 	init_modules();
-
 	uart_log_start_info();
+
 
 	while (1)
 	{
@@ -96,17 +81,9 @@ void main()
 void time_0_isr(void) __interrupt 1
 {
 	// reset number of beginning.
-	TH0 = g_car_config.left_motor_period_h;
-	TL0 = g_car_config.left_motor_period_l;
-}
+	TH0 = g_motor_config.motor_period_h;
+	TL0 = g_motor_config.motor_period_l;
 
-/**
- * timer 1 interrupt function.
- * read ps2 command and execute it by 50ms interval.
- */
-void time_1_isr(void) __interrupt 3
-{
-	// reset number of beginning.
-	TH1 = g_car_config.right_motor_period_h;
-	TL1 = g_car_config.right_motor_period_l;
+    left_motor_pwm_controller.update_pwm_status();
+    right_motor_pwm_controller.update_pwm_status();
 }

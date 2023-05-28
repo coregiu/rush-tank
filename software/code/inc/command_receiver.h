@@ -62,17 +62,6 @@ enum module
     MODULE_SERVO = 3
 };
 
-// the main configuration of car.
-struct car_config
-{
-    uint left_motor_period_h;
-    uint left_motor_period_l;
-    uint right_motor_period_h;
-    uint right_motor_period_l;
-};
-
-extern const struct car_config g_car_config;
-
 struct module_command_receiver
 {
     void (*init)();

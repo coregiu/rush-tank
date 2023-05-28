@@ -4,14 +4,29 @@
   * The driver of motor
   * author: coregiu
   * 
+  * | 按键     | 功能                                     | 监控指示灯   |
+  * | -------- | --------------------------------------- | ---------- |
+  * | 左侧上键 | 坦克前进，长按有效，放开停止                  | P0_0       |
+  * | 左侧下键 | 坦克后退，长按有效，放开停止                  | P0_1       |
+  * | 左侧左键 | 坦克左转，长按有效，放开停止                  | P0_2       |
+  * | 左侧右键 | 坦克右转，长按有效，放开停止                  | P0_3       |
+  * | 右侧上健 | 坦克加速，每按一次提速一格，放开保持当时速度     | P0_4       |
+  * | 右侧下键 | 坦克减速，每按一次减速一格，放开保持当时速度     | P0_5       |
+  * | 右侧左键 | 坦克左前行驶，每按一次左偏一格，放开保持偏转角度  | P0_6       |
+  * | 右侧右键 | 坦克右前行驶，每按一次右偏一格，放开保持偏转角度  | P0_7       |
+  * | 左侧1键  | 坦克以最大速度行驶                           | P0_0       |
+  * | 左侧2键  | 坦克停止                                   | P0_1       |
+  * | 右侧1键  | 坦克左向飘移                               | P0_2        |
+  * | 右侧2键  | 坦克右向飘移                               | P0_3        |
+  * 
   * MOVE command:
   *     key: LEFT_TOP
   *     monitor led: P0_0
   *     gpio:
-  *         LEFT_EN = 1
+  *         LEFT_EN = 20%
   *         LEFT_MV = 1
   *         LEFT_BK = 0
-  *         RIGHT_EN = 1
+  *         RIGHT_EN = 20%
   *         RIGHT_MV = 1
   *         RIGHT_BK = 0
   * 
@@ -19,10 +34,10 @@
   *     key: LEFT_DOWN
   *     monitor led: P0_1
   *     gpio:
-  *         LEFT_EN = 1
+  *         LEFT_EN = 20%
   *         LEFT_MV = 0
   *         LEFT_BK = 1
-  *         RIGHT_EN = 1
+  *         RIGHT_EN = 20%
   *         RIGHT_MV = 0
   *         RIGHT_BK = 1
   * 
@@ -33,7 +48,7 @@
   *         LEFT_EN = 0
   *         LEFT_MV = 0
   *         LEFT_BK = 0
-  *         RIGHT_EN = 1
+  *         RIGHT_EN = 20%
   *         RIGHT_MV = 1
   *         RIGHT_BK = 0
   * 
@@ -41,7 +56,7 @@
   *     key: LEFT_RIGHT
   *     monitor led: P0_3
   *     gpio:
-  *         LEFT_EN = 1
+  *         LEFT_EN = 20%
   *         LEFT_MV = 1
   *         LEFT_BK = 0
   *         RIGHT_EN = 0
@@ -76,17 +91,44 @@ enum car_run_state
     MOVE = 1,
     BACK = 2,
     LEFT = 3,
-    RIGHT = 4
+    RIGHT = 4,
+    LEFT_BACK = 5,
+    RIGHT_BACK = 6,
+    FAST = 7,
+    SLOW = 8,
+    LEFT_TUNE = 9,
+    RIGHT_TUNE = 10,
+    FATEST = 11
 };
+
+// the main configuration of car.
+struct motor_config
+{
+    uint motor_period_h;
+    uint motor_period_l;
+    uint pwm_period_times;
+    uint pwm_change_step;
+};
+
+extern struct motor_config g_motor_config;
 
 struct motor_run_state
 {
-    uchar pwn_enable;
-    uchar pwm_frq;
-    uchar pwm_rate;
-    uchar pwm_times;
+    uchar pwm_rate; // 当前命令下的占空比（周期是100次）
+    uchar pwm_period_times; // 当前周期内总共执行次数
+    uchar pwm_hight_times;  // 当前周期内高电平执行次数
 };
 
+extern struct motor_run_state g_left_motor_run_state;
+extern struct motor_run_state g_right_motor_run_state;
+
 extern const struct module_command_receiver motor_driver;
+
+struct motor_pwm_control
+{
+    void (*update_pwm_status)();
+};
+extern const struct motor_pwm_control left_motor_pwm_controller;
+extern const struct motor_pwm_control right_motor_pwm_controller;
 
 #endif
