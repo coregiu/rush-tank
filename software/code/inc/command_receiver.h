@@ -64,8 +64,10 @@ enum module
 // the main configuration of car.
 struct car_config
 {
-    uchar interval_of_read_ps2_h;
-    uchar interval_of_read_ps2_l;
+    uchar left_motor_period_h;
+    uchar left_motor_period_l;
+    uchar right_motor_period_h;
+    uchar right_motor_period_l;
 };
 
 extern const struct car_config g_car_config;

@@ -62,17 +62,29 @@
 
 #include <command_receiver.h>
 
-#define   RIGHT_EN   P2_0
-#define   RIGHT_MV   P2_1
-#define   RIGHT_BK   P2_2
-#define   LEFT_MV    P2_3
-#define   LEFT_BK    P2_4
-#define   LEFT_EN    P2_5
+#define RIGHT_EN P2_0
+#define RIGHT_MV P2_1
+#define RIGHT_BK P2_2
+#define LEFT_MV P2_3
+#define LEFT_BK P2_4
+#define LEFT_EN P2_5
 
 // CAR run state
 enum car_run_state
 {
-    STOP = 0, MOVE = 1, BACK = 2, LEFT = 3, RIGHT = 4
+    STOP = 0,
+    MOVE = 1,
+    BACK = 2,
+    LEFT = 3,
+    RIGHT = 4
+};
+
+struct motor_run_state
+{
+    uchar pwn_enable;
+    uchar pwm_frq;
+    uchar pwm_rate;
+    uchar pwm_times;
 };
 
 extern const struct module_command_receiver motor_driver;

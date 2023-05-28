@@ -17,15 +17,15 @@
  */
 void uart_log_data(uchar log_data)
 {
-	ES = 0;
-	TI = 0;
-	SBUF = log_data;
-	while (!TI)
-	{
-		//will rest TI after send.
-	}
-	TI = 0;
-	ES = 1;
+    ES = 0;
+    TI = 0;
+    SBUF = log_data;
+    while (!TI)
+    {
+        //will rest TI after send.
+    }
+    TI = 0;
+    ES = 1;
 }
 
 void uart_log_string_data(uchar *log_data)
@@ -42,8 +42,8 @@ void uart_log_string_data(uchar *log_data)
  */
 void uart_log_enter_char()
 {
-	uart_log_data(0x0d);
-	uart_log_data(0x0a);
+    uart_log_data(0x0d);
+    uart_log_data(0x0a);
 }
 
 /**
@@ -51,21 +51,21 @@ void uart_log_enter_char()
  */
 void uart_log_hex_data(uchar log_data)
 {
-	int converted_data;
-	uart_log_data(0x30);
-	uart_log_data(0x78);
-	int log_hex_data = log_data / 16;
-	log_hex_data = log_data % 16;
-	if (log_hex_data % 16 < 10)
-	{
-		converted_data = log_hex_data % 16 + 0x30;
-	}
-	else
-	{
-		converted_data = log_hex_data % 16 + 0x37;
-	}
-	uart_log_data(converted_data);
-	uart_log_enter_char();
+    int converted_data;
+    uart_log_data(0x30);
+    uart_log_data(0x78);
+    int log_hex_data = log_data / 16;
+    log_hex_data = log_data % 16;
+    if (log_hex_data % 16 < 10)
+    {
+        converted_data = log_hex_data % 16 + 0x30;
+    }
+    else
+    {
+        converted_data = log_hex_data % 16 + 0x37;
+    }
+    uart_log_data(converted_data);
+    uart_log_enter_char();
 }
 
 /**
@@ -77,7 +77,7 @@ void uart_log_hex_data(uchar log_data)
 */
 void uart_log_start_info()
 {
-    uchar start_info[20] = {'s','t','a','r','t',' ','s','u','c','e','s','s','@','c','o','r','e','g','i','u'};
+    uchar start_info[20] = {'s', 't', 'a', 'r', 't', ' ', 's', 'u', 'c', 'e', 's', 's', '@', 'c', 'o', 'r', 'e', 'g', 'i', 'u'};
     for (int i = 0; i < 37; i++)
     {
         uart_log_data('-');

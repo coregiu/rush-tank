@@ -31,15 +31,29 @@ void delay_time_ms(uint mil_sec)
 /**
  * init timer 0.
  */
-void init_timer()
+void init_timer_0()
 {
 	// init timer0
 	TMOD |= 0X01;
+    TH0 = g_car_config.left_motor_period_h;
+    TL0 = g_car_config.left_motor_period_l; 
 	ET0 = 1;
     TR0 = 1;
-    TH0 = g_car_config.interval_of_read_ps2_h;
-    TL0 = g_car_config.interval_of_read_ps2_l; 
 	EA  = 1; //¿ªÆô×ÜÖÐ¶Ï
+}
+
+/**
+ * init timer 0.
+ */
+void init_timer_1()
+{
+	// init timer1
+	TMOD |= 0x10;			     
+	TH1 = g_car_config.right_motor_period_h;	 /* Init value */
+	TL1 = g_car_config.right_motor_period_l; 
+	ET1 = 1;                     /* enable timer1 interrupt */
+	TR1 = 1;  
+	EA  = 1;                      /* interupt enable */
 }
 
 /**
@@ -61,7 +75,8 @@ void main()
 {
 	delay_time_ms(500);
 
-	init_timer();
+	init_timer_0();
+	init_timer_1();
 	init_uart();
 	init_modules();
 
@@ -75,7 +90,7 @@ void main()
 		read_ps2(&is_has_command, commands);
 		// executet the commands.
 		execute_commands(is_has_command, commands); 
-		delay_time_ms(100);
+		delay_time_ms(50);
 	}
 }
 
@@ -86,8 +101,8 @@ void main()
 void time_0_isr(void) __interrupt 1
 {
 	// reset number of beginning.
-	TH0 = g_car_config.interval_of_read_ps2_h;
-	TL0 = g_car_config.interval_of_read_ps2_l;
+	TH0 = g_car_config.left_motor_period_h;
+	TL0 = g_car_config.left_motor_period_l;
 }
 
 /**
@@ -97,6 +112,6 @@ void time_0_isr(void) __interrupt 1
 void time_1_isr(void) __interrupt 3
 {
 	// reset number of beginning.
-	TH0 = g_car_config.interval_of_read_ps2_h;
-	TL0 = g_car_config.interval_of_read_ps2_l;
+	TH1 = g_car_config.right_motor_period_h;
+	TL1 = g_car_config.right_motor_period_l;
 }
