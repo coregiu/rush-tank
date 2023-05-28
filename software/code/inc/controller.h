@@ -13,10 +13,7 @@
 
 #include <mcs51/8051.h>
 #include <ps2_receiver.h>
-#include <music_switch.h>
-#include <led_group.h>
 #include <motor_driver.h>
-#include <servos_driver.h>
 #include <command_receiver.h>
 
 /**

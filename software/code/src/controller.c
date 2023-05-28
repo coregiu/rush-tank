@@ -17,9 +17,6 @@
 void init_modules()
 {
     motor_driver.init();
-    led_group.init();
-    music_switch.init();
-    servos_driver.init();
 }
 
 /**
@@ -39,7 +36,6 @@ void execute_commands(uint is_has_command, int **commands)
     else
     {
         notify_all(MODULE_MOTOR, COMMAND_LEFT_2); // stop the car
-        notify_all(MODULE_SERVO, COMMAND_LEFT_2); // set servo to receive new command
     }
 }
 
@@ -56,16 +52,7 @@ void notify_all(enum module car_module, uint car_cmd)
     case MODULE_MOTOR:
         motor_driver.update_state(car_cmd);
         break;
-    case MODULE_LED:
-        led_group.update_state(car_cmd);
-        break;
-    case MODULE_MUSIC:
-        music_switch.update_state(car_cmd);
-        break;
-    case MODULE_SERVO:
-        servos_driver.update_state(car_cmd);
-        break;
-    
+        
     default:
         break;
     }

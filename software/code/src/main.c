@@ -13,12 +13,7 @@
 #define READ_PS2_INTVAL_TIME_MS_H   0X00
 #define READ_PS2_INTVAL_TIME_MS_L   0X00
 
-const struct car_config g_car_config = {READ_PS2_INTVAL_TIME_MS_H, READ_PS2_INTVAL_TIME_MS_L};
-
-const uchar EXE_PERIODS = 1;
-
-// delay times for timer 0. 3 times for a execute period, equals 200ms.
-uchar delayTimes = 0;
+const struct car_config g_car_config = {0X00, 0X00, 0X00, 0X00};
 
 void delay_time_ms(uint mil_sec)
 {
@@ -90,7 +85,7 @@ void main()
 		read_ps2(&is_has_command, commands);
 		// executet the commands.
 		execute_commands(is_has_command, commands); 
-		delay_time_ms(50);
+		delay_time_ms(150);
 	}
 }
 
