@@ -13,7 +13,7 @@
 #define READ_PS2_INTVAL_TIME_MS_H   0XFC
 #define READ_PS2_INTVAL_TIME_MS_L   0X66
 
-struct motor_config g_motor_config = {0XFC, 0X66, 100, 20};
+struct motor_config g_motor_config = {0XFC, 0X66, 5, 1};
 
 void delay_time_ms(unsigned int mil_sec)
 {

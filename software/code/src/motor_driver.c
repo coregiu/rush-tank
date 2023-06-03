@@ -87,18 +87,17 @@ enum gpio_position
 };
 
 // car sate to set to gpio: {LEFT_EN, LEFT_MV, LEFT_BK, RIGHT_EN, RIGHT_MV, RIGHT_BK}
-const uchar CAR_STATE_LIST[7][6] = {{0,  0, 0, 0,  0, 0},  // init
-                                    {20, 1, 0, 20, 1, 0},  // move
-                                    {20, 0, 1, 20, 0, 1},  // back
-                                    {0,  0, 0, 20, 1, 0},  // left
-                                    {20, 1, 0, 0,  0, 0},  // right
-                                    {100, 1, 0, 100, 0, 1},  // left_back
-                                    {100, 0, 1, 100, 1, 0}}; // right_back
+const uchar CAR_STATE_LIST[7][6] = {{0, 0, 0, 0, 0, 0},  // init
+                                    {1, 1, 0, 1, 1, 0},  // move
+                                    {1, 0, 1, 1, 0, 1},  // back
+                                    {0, 0, 0, 1, 1, 0},  // left
+                                    {1, 1, 0, 0, 0, 0},  // right
+                                    {5, 1, 0, 5, 0, 1},  // left_back
+                                    {5, 0, 1, 5, 1, 0}}; // right_back
 
 enum car_run_state current_car_status = STOP;
 struct motor_run_state g_left_motor_run_state  = {0, 0, 0};
 struct motor_run_state g_right_motor_run_state = {0, 0, 0};
-
 uchar current_right_command_status = SWITCH_ON;
 
 void stop()
@@ -117,12 +116,12 @@ void exec_car_state_update(enum car_run_state run_state)
         LEFT_EN  = 0;
         LEFT_MV  = CAR_STATE_LIST[run_state][LEFT_MV_POSITION];
         LEFT_BK  = CAR_STATE_LIST[run_state][LEFT_BK_POSITION];
-        g_left_motor_run_state.pwm_rate = CAR_STATE_LIST[run_state][LEFT_EN_POSITION];
+        g_left_motor_run_state.pwm_rate = g_left_motor_run_state.pwm_rate > 0 ? g_left_motor_run_state.pwm_rate : CAR_STATE_LIST[run_state][LEFT_EN_POSITION];
 
         RIGHT_EN = 0;
         RIGHT_MV = CAR_STATE_LIST[run_state][RIGHT_MV_POSITION];
         RIGHT_BK = CAR_STATE_LIST[run_state][RIGHT_BK_POSITION];
-        g_right_motor_run_state.pwm_rate = CAR_STATE_LIST[run_state][RIGHT_EN_POSITION];
+        g_right_motor_run_state.pwm_rate = g_right_motor_run_state.pwm_rate > 0 ? g_right_motor_run_state.pwm_rate : CAR_STATE_LIST[run_state][RIGHT_EN_POSITION];
 
         current_car_status == run_state;
     }
@@ -138,25 +137,31 @@ void exec_car_pwm_update(enum car_run_state run_state)
         {
         // 加速，占空比逐步提升
         case FAST:
+        {
             g_left_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
             g_left_motor_run_state.pwm_rate = g_left_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_left_motor_run_state.pwm_rate;
             
             g_right_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
             g_right_motor_run_state.pwm_rate = g_right_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_right_motor_run_state.pwm_rate;
             break;
+        }
         // 减速，占空比逐步下降
         case SLOW:
+        {
             g_left_motor_run_state.pwm_rate = 
-            (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? 0 : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_left_motor_run_state.pwm_rate : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
             
             g_right_motor_run_state.pwm_rate = 
-            (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? 0 : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_right_motor_run_state.pwm_rate : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
             break;
+        }
         // 全速前进，占空比拉满
         case FATEST:
+        {
             g_left_motor_run_state.pwm_rate = g_motor_config.pwm_period_times;
             g_right_motor_run_state.pwm_rate = g_motor_config.pwm_period_times;
             break;
+        }
         default:
             break;
         }
@@ -170,9 +175,6 @@ void init_motor_driver()
 
 void update_motor_state(uchar car_cmd[])
 {
-    uart_log_data('|');
-    uart_log_hex_data(car_cmd[0]);
-    uart_log_hex_data(car_cmd[1]);
     if (car_cmd[0] <= LEFT_KEY)
     {   
         current_right_command_status = SWITCH_ON;

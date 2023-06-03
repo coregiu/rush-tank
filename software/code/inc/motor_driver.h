@@ -114,7 +114,7 @@ extern struct motor_config g_motor_config;
 
 struct motor_run_state
 {
-    uchar pwm_rate; // 当前命令下的占空比（周期是100次）
+    uchar pwm_rate; // 当前命令下的占空比（周期是5次）
     uchar pwm_period_times; // 当前周期内总共执行次数
     uchar pwm_hight_times;  // 当前周期内高电平执行次数
 };
