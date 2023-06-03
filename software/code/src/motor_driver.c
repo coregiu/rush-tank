@@ -99,13 +99,15 @@ enum car_run_state current_car_status = STOP;
 struct motor_run_state g_left_motor_run_state  = {0, 0, 0};
 struct motor_run_state g_right_motor_run_state = {0, 0, 0};
 
-uchar right_command_status = 0;
+uchar current_right_command_status = SWITCH_ON;
 
 void stop()
 {
     g_left_motor_run_state.pwm_rate  = 0;
     g_right_motor_run_state.pwm_rate = 0;
     current_car_status = STOP;
+    current_right_command_status = SWITCH_ON;
+
 }
 
 void exec_car_state_update(enum car_run_state run_state)
@@ -126,13 +128,9 @@ void exec_car_state_update(enum car_run_state run_state)
     }
 }
 
-void exec_car_pwm_update(enum car_run_state run_state, uchar key_module)
+void exec_car_pwm_update(enum car_run_state run_state)
 {
-    if (key_module == NON_KEY || key_module == LEFT_KEY)
-    {
-        right_command_status = 0;
-    }
-    if (right_command_status != 0)
+    if (current_right_command_status == SWITCH_OFF)
     {
         return;
     }
@@ -162,6 +160,7 @@ void exec_car_pwm_update(enum car_run_state run_state, uchar key_module)
         default:
             break;
         }
+    current_right_command_status = SWITCH_OFF;
 }
 
 void init_motor_driver()
@@ -169,9 +168,17 @@ void init_motor_driver()
     exec_car_state_update(STOP);
 }
 
-void update_motor_state(uchar car_cmd, uchar key_module)
+void update_motor_state(uchar car_cmd[])
 {
-    switch (car_cmd)
+    uart_log_data('|');
+    uart_log_hex_data(car_cmd[0]);
+    uart_log_hex_data(car_cmd[1]);
+    if (car_cmd[0] <= LEFT_KEY)
+    {   
+        current_right_command_status = SWITCH_ON;
+    }
+
+    switch (car_cmd[1])
         {
         case COMMAND_LEFT_TOP:
             // uart_log_string_data("e:1"); // send 1
@@ -196,28 +203,28 @@ void update_motor_state(uchar car_cmd, uchar key_module)
         case COMMAND_RIGHT_TOP:
             // uart_log_string_data("e:5"); // send 5
             LED_RIGHT_TOP = !LED_RIGHT_TOP;
-            exec_car_pwm_update(FAST, key_module);
+            exec_car_pwm_update(FAST);
             break;
         case COMMAND_RIGHT_DOWN:
             // uart_log_string_data("e:6"); // send 6
             LED_RIGHT_DOWN = !LED_RIGHT_DOWN;
-            exec_car_pwm_update(SLOW, key_module);
+            exec_car_pwm_update(SLOW);
             break;
         case COMMAND_RIGHT_LEFT:
             // uart_log_string_data("e:7"); // send 7
             LED_RIGHT_LEFT = !LED_RIGHT_LEFT;
-            exec_car_pwm_update(LEFT_TUNE, key_module);
+            exec_car_pwm_update(LEFT_TUNE);
             break;
         case COMMAND_RIGHT_RIGHT:
             // uart_log_string_data("e:8"); // send 8
             LED_RIGHT_RIGHT = !LED_RIGHT_RIGHT;
-            exec_car_pwm_update(RIGHT_TUNE, key_module);
+            exec_car_pwm_update(RIGHT_TUNE);
             break;
         case COMMAND_LEFT_1:
             // uart_log_string_data("e:9"); // send 9
             LED_LEFT_TOP = !LED_LEFT_TOP;
             exec_car_state_update(MOVE);
-            exec_car_pwm_update(FATEST, key_module);
+            exec_car_pwm_update(FATEST);
             break;
         case COMMAND_LEFT_2:
             // uart_log_string_data("e:A"); // send A

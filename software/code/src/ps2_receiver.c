@@ -121,12 +121,11 @@ void convert_commands(uchar *key_module, uchar **commands)
 			commands[i][1] = command_map[i][3];
 			// uart_log_enter_char();
 			// uart_log_string_data("p:");
-			// uart_log_hex_data(command_map[i][2]);
-            if (i == 3) // left control
+            if (i <= 3) // left control
             {
                 *key_module |= 0b01;
             }
-			else if (i == 4) // right control
+			else // right control
             {
                 *key_module |= 0b10;
             }

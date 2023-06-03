@@ -50,9 +50,11 @@ void notify_all(enum module car_module, uchar car_cmd, uchar key_module)
     switch (car_module)
     {
     case MODULE_MOTOR:
-        motor_driver.update_state(car_cmd, key_module);
+    {
+        uchar exe_cmds[2] = {key_module, car_cmd};
+        motor_driver.update_state(exe_cmds);
         break;
-        
+    }        
     default:
         break;
     }

@@ -68,6 +68,7 @@ void main()
 		uchar commands[COMMANDS_LENGTH][2] = {{0}};
 		uchar key_module = NON_KEY;
 		read_ps2(&key_module, commands);
+        // uart_log_hex_data(key_module);
 		// executet the commands.
 		execute_commands(key_module, commands); 
 		delay_time_ms(150);
