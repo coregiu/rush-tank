@@ -45,7 +45,7 @@ out[6] 00——7F——FF 右摇杆从上到下
 /********vars of ps2*********/
 const uchar scan[9] = {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-const uint command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MODULE_MOTOR}, 
+const uchar command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MODULE_MOTOR}, 
 										      {3, 0xBF, COMMAND_LEFT_DOWN,   MODULE_MOTOR}, 
 										      {3, 0x7F, COMMAND_LEFT_LEFT,   MODULE_MOTOR}, 
 										      {3, 0xDF, COMMAND_LEFT_RIGHT,  MODULE_MOTOR}, 
@@ -69,9 +69,9 @@ void send_ps2_key_info()
 	uart_log_enter_char();
 }
 
-// void delay_empty_order(uint n) //delay_empty_order(x)=(2.5+x)us;
+// void delay_empty_order(uchar n) //delay_empty_order(x)=(2.5+x)us;
 // {
-// 	uint i;
+// 	uchar i;
 // 	for (i = 0; i < n; i++)
 // 	{
 // 		_nop_();
@@ -110,7 +110,7 @@ uchar scan_input_from_ps2(uchar command)
 * in   : void
 * out  : unit[]
 ***********************************************************************/
-void convert_commands(enum key_module *key_module, uint **commands)
+void convert_commands(uchar *key_module, uchar **commands)
 {
 	*key_module = 0;
 	for (char i = 0; i < COMMANDS_LENGTH; i++)
@@ -140,7 +140,7 @@ void convert_commands(enum key_module *key_module, uint **commands)
 * in   : void
 * out  : unit[]
 ***********************************************************************/
-void read_ps2(enum key_module *key_module, uint **commands)
+void read_ps2(uchar *key_module, uchar **commands)
 {
 	ATT = 0;
 	for (uchar i = 0; i < 9; i++) //scan keys

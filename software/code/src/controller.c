@@ -24,9 +24,9 @@ void init_modules()
  * and notify modules to execute commands;
  * 
  */
-void execute_commands(enum key_module key_module, int **commands)
+void execute_commands(uchar key_module, uchar **commands)
 {
-    if (key_module != NON_KEY)
+    if (key_module)
     {
         for (uchar i = 0; i < COMMANDS_LENGTH; i++)
         {
@@ -35,8 +35,8 @@ void execute_commands(enum key_module key_module, int **commands)
     }
     else
     {
-        notify_all(MODULE_MOTOR, COMMAND_LEFT_2, key_module); // stop the car
-    }
+        notify_all(MODULE_MOTOR, COMMAND_LEFT_2, key_module);
+    }    
 }
 
 /**
@@ -45,7 +45,7 @@ void execute_commands(enum key_module key_module, int **commands)
  * car_cmd: the command
  * 
  */
-void notify_all(enum module car_module, uint car_cmd, enum key_module key_module)
+void notify_all(enum module car_module, uchar car_cmd, uchar key_module)
 {
     switch (car_module)
     {

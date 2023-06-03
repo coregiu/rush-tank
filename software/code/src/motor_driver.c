@@ -126,7 +126,7 @@ void exec_car_state_update(enum car_run_state run_state)
     }
 }
 
-void exec_car_pwm_update(enum car_run_state run_state, enum key_module key_module)
+void exec_car_pwm_update(enum car_run_state run_state, uchar key_module)
 {
     if (key_module == NON_KEY || key_module == LEFT_KEY)
     {
@@ -169,7 +169,7 @@ void init_motor_driver()
     exec_car_state_update(STOP);
 }
 
-void update_motor_state(uint car_cmd, enum key_module key_module)
+void update_motor_state(uchar car_cmd, uchar key_module)
 {
     switch (car_cmd)
         {

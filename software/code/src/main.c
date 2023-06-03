@@ -15,9 +15,9 @@
 
 struct motor_config g_motor_config = {0XFC, 0X66, 100, 20};
 
-void delay_time_ms(uint mil_sec)
+void delay_time_ms(unsigned int mil_sec)
 {
-	uint i, j;
+	unsigned int i, j;
 	for (i = mil_sec; i > 0; i--)
 		for (j = 70; j > 0; j--)
 			;
@@ -65,8 +65,8 @@ void main()
 	while (1)
 	{
 		// read ps2 command and set is_has_command/non_motor_cmd_times value.
-		uint commands[COMMANDS_LENGTH][2] = {{0}};
-		enum key_module key_module = NON_KEY;
+		uchar commands[COMMANDS_LENGTH][2] = {{0}};
+		uchar key_module = NON_KEY;
 		read_ps2(&key_module, commands);
 		// executet the commands.
 		execute_commands(key_module, commands); 

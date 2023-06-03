@@ -73,9 +73,9 @@ enum key_module
 struct module_command_receiver
 {
     void (*init)() __reentrant;
-    void (*update_state)(uint car_cmd, enum key_module key_module) __reentrant;
+    void (*update_state)(uchar car_cmd, uchar key_module) __reentrant;
 };
 
-extern void delay_time_ms(uint mil_sec);
+extern void delay_time_ms(unsigned int mil_sec);
 
 #endif

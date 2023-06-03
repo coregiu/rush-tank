@@ -104,10 +104,10 @@ enum car_run_state
 // the main configuration of car.
 struct motor_config
 {
-    uint motor_period_h;
-    uint motor_period_l;
-    uint pwm_period_times;
-    uint pwm_change_step;
+    uchar motor_period_h;
+    uchar motor_period_l;
+    uchar pwm_period_times;
+    uchar pwm_change_step;
 };
 
 extern struct motor_config g_motor_config;

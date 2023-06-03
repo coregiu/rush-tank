@@ -13,7 +13,6 @@
 
 #include <mcs51/8051.h>
 
-#define uint unsigned int
 #define uchar unsigned char
 
 /**
