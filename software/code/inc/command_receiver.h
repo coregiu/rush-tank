@@ -62,10 +62,18 @@ enum module
     MODULE_SERVO = 3
 };
 
+enum key_module
+{
+    NON_KEY   = 0,
+    LEFT_KEY  = 1,
+    RIGHT_KEY = 2,
+    ALL_KEY   = 3
+};
+
 struct module_command_receiver
 {
-    void (*init)();
-    void (*update_state)(uint car_cmd);
+    void (*init)() __reentrant;
+    void (*update_state)(uint car_cmd, enum key_module key_module) __reentrant;
 };
 
 extern void delay_time_ms(uint mil_sec);

@@ -26,7 +26,7 @@ void init_modules();
  * execute commands;
  * 
  */
-void execute_commands(uint is_has_command, int **commands);
+void execute_commands(enum key_module key_module, int **commands);
 
 /**
  * notify modules to execute the commands.
@@ -34,6 +34,6 @@ void execute_commands(uint is_has_command, int **commands);
  * car_cmd: the command
  * 
  */
-void notify_all(enum module car_module, uint car_cmd);
+void notify_all(enum module car_module, uint car_cmd, enum key_module key_module);
 
 #endif

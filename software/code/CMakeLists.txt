@@ -6,6 +6,7 @@ set(PROJECT_NAME "RUKE")
 include (CMakeForceCompiler)
 set(CMAKE_SYSTEM_NAME Generic)
 CMAKE_FORCE_C_COMPILER(sdcc SDCC)
+SET(SDCC_MCS51_MEMORY_MODLE "large")
 # set(CMAKE_C_COMPILER sdcc)
 
 project(${PROJECT_NAME} C)  # 这个C是必须的, 否则将会提示CXX编译器错误

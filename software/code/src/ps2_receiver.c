@@ -110,9 +110,9 @@ uchar scan_input_from_ps2(uchar command)
 * in   : void
 * out  : unit[]
 ***********************************************************************/
-void convert_commands(uint *is_has_command, uint **commands)
+void convert_commands(enum key_module *key_module, uint **commands)
 {
-	*is_has_command = 0;
+	*key_module = 0;
 	for (char i = 0; i < COMMANDS_LENGTH; i++)
 	{
 		if (out[command_map[i][0]] == command_map[i][1])
@@ -122,7 +122,14 @@ void convert_commands(uint *is_has_command, uint **commands)
 			// uart_log_enter_char();
 			// uart_log_string_data("p:");
 			// uart_log_hex_data(command_map[i][2]);
-			*is_has_command = 1;
+            if (i == 3) // left control
+            {
+                *key_module |= 0b01;
+            }
+			else if (i == 4) // right control
+            {
+                *key_module |= 0b10;
+            }
 		}
 	}
 }
@@ -133,7 +140,7 @@ void convert_commands(uint *is_has_command, uint **commands)
 * in   : void
 * out  : unit[]
 ***********************************************************************/
-void read_ps2(uint *is_has_command, uint **commands)
+void read_ps2(enum key_module *key_module, uint **commands)
 {
 	ATT = 0;
 	for (uchar i = 0; i < 9; i++) //scan keys
@@ -141,5 +148,5 @@ void read_ps2(uint *is_has_command, uint **commands)
 		out[i] = scan_input_from_ps2(scan[i]);
 	}
 	ATT = 1;
-	convert_commands(is_has_command, commands);
+	convert_commands(key_module, commands);
 }

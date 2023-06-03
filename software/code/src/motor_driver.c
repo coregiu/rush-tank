@@ -99,6 +99,8 @@ enum car_run_state current_car_status = STOP;
 struct motor_run_state g_left_motor_run_state  = {0, 0, 0};
 struct motor_run_state g_right_motor_run_state = {0, 0, 0};
 
+uchar right_command_status = 0;
+
 void stop()
 {
     g_left_motor_run_state.pwm_rate  = 0;
@@ -124,8 +126,16 @@ void exec_car_state_update(enum car_run_state run_state)
     }
 }
 
-void exec_car_pwm_update(enum car_run_state run_state)
+void exec_car_pwm_update(enum car_run_state run_state, enum key_module key_module)
 {
+    if (key_module == NON_KEY || key_module == LEFT_KEY)
+    {
+        right_command_status = 0;
+    }
+    if (right_command_status != 0)
+    {
+        return;
+    }
     switch (run_state)
         {
         // 加速，占空比逐步提升
@@ -159,7 +169,7 @@ void init_motor_driver()
     exec_car_state_update(STOP);
 }
 
-void update_motor_state(uint car_cmd)
+void update_motor_state(uint car_cmd, enum key_module key_module)
 {
     switch (car_cmd)
         {
@@ -186,28 +196,28 @@ void update_motor_state(uint car_cmd)
         case COMMAND_RIGHT_TOP:
             // uart_log_string_data("e:5"); // send 5
             LED_RIGHT_TOP = !LED_RIGHT_TOP;
-            exec_car_pwm_update(FAST);
+            exec_car_pwm_update(FAST, key_module);
             break;
         case COMMAND_RIGHT_DOWN:
             // uart_log_string_data("e:6"); // send 6
             LED_RIGHT_DOWN = !LED_RIGHT_DOWN;
-            exec_car_pwm_update(SLOW);
+            exec_car_pwm_update(SLOW, key_module);
             break;
         case COMMAND_RIGHT_LEFT:
             // uart_log_string_data("e:7"); // send 7
             LED_RIGHT_LEFT = !LED_RIGHT_LEFT;
-            exec_car_pwm_update(LEFT_TUNE);
+            exec_car_pwm_update(LEFT_TUNE, key_module);
             break;
         case COMMAND_RIGHT_RIGHT:
             // uart_log_string_data("e:8"); // send 8
             LED_RIGHT_RIGHT = !LED_RIGHT_RIGHT;
-            exec_car_pwm_update(RIGHT_TUNE);
+            exec_car_pwm_update(RIGHT_TUNE, key_module);
             break;
         case COMMAND_LEFT_1:
             // uart_log_string_data("e:9"); // send 9
             LED_LEFT_TOP = !LED_LEFT_TOP;
             exec_car_state_update(MOVE);
-            exec_car_pwm_update(FATEST);
+            exec_car_pwm_update(FATEST, key_module);
             break;
         case COMMAND_LEFT_2:
             // uart_log_string_data("e:A"); // send A

@@ -66,10 +66,10 @@ void main()
 	{
 		// read ps2 command and set is_has_command/non_motor_cmd_times value.
 		uint commands[COMMANDS_LENGTH][2] = {{0}};
-		uint is_has_command = 0;
-		read_ps2(&is_has_command, commands);
+		enum key_module key_module = NON_KEY;
+		read_ps2(&key_module, commands);
 		// executet the commands.
-		execute_commands(is_has_command, commands); 
+		execute_commands(key_module, commands); 
 		delay_time_ms(150);
 	}
 }

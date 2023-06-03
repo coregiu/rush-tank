@@ -24,18 +24,18 @@ void init_modules()
  * and notify modules to execute commands;
  * 
  */
-void execute_commands(uint is_has_command, int **commands)
+void execute_commands(enum key_module key_module, int **commands)
 {
-    if (is_has_command)
+    if (key_module != NON_KEY)
     {
         for (uchar i = 0; i < COMMANDS_LENGTH; i++)
         {
-            notify_all(commands[i][1], commands[i][0]);
+            notify_all(commands[i][1], commands[i][0], key_module);
         }
     }
     else
     {
-        notify_all(MODULE_MOTOR, COMMAND_LEFT_2); // stop the car
+        notify_all(MODULE_MOTOR, COMMAND_LEFT_2, key_module); // stop the car
     }
 }
 
@@ -45,12 +45,12 @@ void execute_commands(uint is_has_command, int **commands)
  * car_cmd: the command
  * 
  */
-void notify_all(enum module car_module, uint car_cmd)
+void notify_all(enum module car_module, uint car_cmd, enum key_module key_module)
 {
     switch (car_module)
     {
     case MODULE_MOTOR:
-        motor_driver.update_state(car_cmd);
+        motor_driver.update_state(car_cmd, key_module);
         break;
         
     default:
