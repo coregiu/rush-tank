@@ -162,6 +162,20 @@ void exec_car_pwm_update(enum car_run_state run_state)
             g_right_motor_run_state.pwm_rate = g_motor_config.pwm_period_times;
             break;
         }
+        // 全速前进，占空比拉满
+        case LEFT_TUNE:
+        {
+            g_right_motor_run_state.pwm_rate = 
+            (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_right_motor_run_state.pwm_rate : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            break;
+        }
+        // 全速前进，占空比拉满
+        case RIGHT_TUNE:
+        {
+            g_left_motor_run_state.pwm_rate = 
+            (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_left_motor_run_state.pwm_rate : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            break;
+        }
         default:
             break;
         }
