@@ -110,24 +110,20 @@ uchar scan_input_from_ps2(uchar command)
 * in   : void
 * out  : unit[]
 ***********************************************************************/
-void convert_commands(uchar *key_module, uchar **commands)
+void convert_commands(struct command_key *command_key)
 {
-	*key_module = 0;
 	for (char i = 0; i < COMMANDS_LENGTH; i++)
 	{
 		if (out[command_map[i][0]] == command_map[i][1])
 		{
-			commands[i][0] = command_map[i][2];
-			commands[i][1] = command_map[i][3];
-			// uart_log_enter_char();
-			// uart_log_string_data("p:");
             if (i <= 3) // left control
             {
-                *key_module |= 0b01;
+                command_key->left_key   = command_map[i][2];
+                command_key->exe_module = command_map[i][3];
             }
 			else // right control
             {
-                *key_module |= 0b10;
+                command_key->right_key   = command_map[i][2];
             }
 		}
 	}
@@ -139,7 +135,7 @@ void convert_commands(uchar *key_module, uchar **commands)
 * in   : void
 * out  : unit[]
 ***********************************************************************/
-void read_ps2(uchar *key_module, uchar **commands)
+void read_ps2(struct command_key *command_key)
 {
 	ATT = 0;
 	for (uchar i = 0; i < 9; i++) //scan keys
@@ -147,5 +143,5 @@ void read_ps2(uchar *key_module, uchar **commands)
 		out[i] = scan_input_from_ps2(scan[i]);
 	}
 	ATT = 1;
-	convert_commands(key_module, commands);
+	convert_commands(command_key);
 }

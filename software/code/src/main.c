@@ -65,12 +65,12 @@ void main()
 	while (1)
 	{
 		// read ps2 command and set is_has_command/non_motor_cmd_times value.
-		uchar commands[COMMANDS_LENGTH][2] = {{0}};
-		uchar key_module = NON_KEY;
-		read_ps2(&key_module, commands);
+        struct command_key command_key = {0, 0, MODULE_MOTOR};
+        
+		read_ps2(&command_key);
         // uart_log_hex_data(key_module);
 		// executet the commands.
-		execute_commands(key_module, commands); 
+		execute_commands(&command_key); 
 		delay_time_ms(150);
 	}
 }

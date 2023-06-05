@@ -26,7 +26,7 @@ void init_modules();
  * execute commands;
  * 
  */
-void execute_commands(uchar key_module, uchar **commands);
+void execute_commands(struct command_key *command_key);
 
 /**
  * notify modules to execute the commands.
@@ -34,6 +34,6 @@ void execute_commands(uchar key_module, uchar **commands);
  * car_cmd: the command
  * 
  */
-void notify_all(uchar car_module, uchar car_cmd, uchar key_module);
+void notify_all(struct command_key *command_key);
 
 #endif

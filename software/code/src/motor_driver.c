@@ -88,10 +88,10 @@ enum gpio_position
 
 // car sate to set to gpio: {LEFT_EN, LEFT_MV, LEFT_BK, RIGHT_EN, RIGHT_MV, RIGHT_BK}
 const uchar CAR_STATE_LIST[7][6] = {{0, 0, 0, 0, 0, 0},  // init
-                                    {1, 1, 0, 1, 1, 0},  // move
-                                    {1, 0, 1, 1, 0, 1},  // back
-                                    {0, 0, 0, 1, 1, 0},  // left
-                                    {1, 1, 0, 0, 0, 0},  // right
+                                    {2, 1, 0, 2, 1, 0},  // move
+                                    {2, 0, 1, 2, 0, 1},  // back
+                                    {0, 0, 0, 2, 1, 0},  // left
+                                    {2, 1, 0, 0, 0, 0},  // right
                                     {5, 1, 0, 5, 0, 1},  // left_back
                                     {5, 0, 1, 5, 1, 0}}; // right_back
 
@@ -143,6 +143,7 @@ void exec_car_pwm_update(enum car_run_state run_state)
             
             g_right_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
             g_right_motor_run_state.pwm_rate = g_right_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_right_motor_run_state.pwm_rate;
+            
             break;
         }
         // 减速，占空比逐步下降
@@ -150,7 +151,7 @@ void exec_car_pwm_update(enum car_run_state run_state)
         {
             g_left_motor_run_state.pwm_rate = 
             (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_left_motor_run_state.pwm_rate : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
-            
+
             g_right_motor_run_state.pwm_rate = 
             (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_right_motor_run_state.pwm_rate : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
             break;
@@ -187,15 +188,10 @@ void init_motor_driver()
     exec_car_state_update(STOP);
 }
 
-void update_motor_state(uchar car_cmd[])
+void update_motor_state(struct command_key *command_key)
 {
-    if (car_cmd[0] <= LEFT_KEY)
-    {   
-        current_right_command_status = SWITCH_ON;
-    }
-
-    switch (car_cmd[1])
-        {
+    switch (command_key->left_key)
+    {
         case COMMAND_LEFT_TOP:
             // uart_log_string_data("e:1"); // send 1
             LED_LEFT_TOP = !LED_LEFT_TOP;
@@ -216,6 +212,15 @@ void update_motor_state(uchar car_cmd[])
             LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
             exec_car_state_update(RIGHT);
             break;
+        case COMMAND_NULL:
+            stop();
+            return;
+        default:
+            break;
+    }
+
+    switch (command_key->right_key)
+    {
         case COMMAND_RIGHT_TOP:
             // uart_log_string_data("e:5"); // send 5
             LED_RIGHT_TOP = !LED_RIGHT_TOP;
@@ -245,21 +250,24 @@ void update_motor_state(uchar car_cmd[])
         case COMMAND_LEFT_2:
             // uart_log_string_data("e:A"); // send A
             // LED_LEFT_DOWN = !LED_LEFT_DOWN;
-            stop();
+            // stop();
             break;
         case COMMAND_RIGHT_1:
-            // uart_log_string_data("e:B"); // send B
+            uart_log_string_data("e:B"); // send B
             LED_LEFT_LEFT = !LED_LEFT_LEFT;
             exec_car_state_update(LEFT_BACK);
             break;
         case COMMAND_RIGHT_2:
-            // uart_log_string_data("e:C"); // send C
+            uart_log_string_data("e:C"); // send C
             LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
             exec_car_state_update(RIGHT_BACK);
             break;
+        case COMMAND_NULL:
+            current_right_command_status = SWITCH_ON;
+            return;
         default:
             break;
-        }
+    }
 }
 
 const struct module_command_receiver motor_driver = {init_motor_driver, update_motor_state};

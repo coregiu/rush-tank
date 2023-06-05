@@ -24,19 +24,9 @@ void init_modules()
  * and notify modules to execute commands;
  * 
  */
-void execute_commands(uchar key_module, uchar **commands)
+void execute_commands(struct command_key *command_key)
 {
-    if (key_module)
-    {
-        for (uchar i = 0; i < COMMANDS_LENGTH; i++)
-        {
-            notify_all(commands[i][1], commands[i][0], key_module);
-        }
-    }
-    else
-    {
-        notify_all(MODULE_MOTOR, COMMAND_LEFT_2, key_module);
-    }    
+    notify_all(command_key);
 }
 
 /**
@@ -45,14 +35,13 @@ void execute_commands(uchar key_module, uchar **commands)
  * car_cmd: the command
  * 
  */
-void notify_all(enum module car_module, uchar car_cmd, uchar key_module)
+void notify_all(struct command_key *command_key)
 {
-    switch (car_module)
+    switch (command_key->exe_module)
     {
     case MODULE_MOTOR:
     {
-        uchar exe_cmds[2] = {key_module, car_cmd};
-        motor_driver.update_state(exe_cmds);
+        motor_driver.update_state(command_key);
         break;
     }        
     default:
