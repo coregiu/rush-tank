@@ -116,7 +116,7 @@ void convert_commands(struct command_key *command_key)
 	{
 		if (out[command_map[i][0]] == command_map[i][1])
 		{
-            if (i <= 3) // left control
+            if (i <= 3 || i>= 8) // left control
             {
                 command_key->left_key   = command_map[i][2];
                 command_key->exe_module = command_map[i][3];

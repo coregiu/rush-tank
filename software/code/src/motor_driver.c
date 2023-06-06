@@ -95,10 +95,13 @@ const uchar CAR_STATE_LIST[7][6] = {{0, 0, 0, 0, 0, 0},  // init
                                     {5, 1, 0, 5, 0, 1},  // left_back
                                     {5, 0, 1, 5, 1, 0}}; // right_back
 
+const uchar RIGHT_KEY_PERIOD = 3;
+
 enum car_run_state current_car_status = STOP;
 struct motor_run_state g_left_motor_run_state  = {0, 0, 0};
 struct motor_run_state g_right_motor_run_state = {0, 0, 0};
 uchar current_right_command_status = SWITCH_ON;
+uchar current_right_command_times  = 0;
 
 void stop()
 {
@@ -106,7 +109,7 @@ void stop()
     g_right_motor_run_state.pwm_rate = 0;
     current_car_status = STOP;
     current_right_command_status = SWITCH_ON;
-
+    current_right_command_times  = 0;
 }
 
 void exec_car_state_update(enum car_run_state run_state)
@@ -129,8 +132,9 @@ void exec_car_state_update(enum car_run_state run_state)
 
 void exec_car_pwm_update(enum car_run_state run_state)
 {
-    if (current_right_command_status == SWITCH_OFF)
+    if (current_right_command_status == SWITCH_OFF && current_right_command_times < RIGHT_KEY_PERIOD)
     {
+        current_right_command_times++;
         return;
     }
     switch (run_state)
@@ -138,22 +142,25 @@ void exec_car_pwm_update(enum car_run_state run_state)
         // 加速，占空比逐步提升
         case FAST:
         {
+            // uart_log_data('-');
             g_left_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
             g_left_motor_run_state.pwm_rate = g_left_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_left_motor_run_state.pwm_rate;
-            
+            // uart_log_hex_data(g_left_motor_run_state.pwm_rate);
             g_right_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
             g_right_motor_run_state.pwm_rate = g_right_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_right_motor_run_state.pwm_rate;
-            
+            // uart_log_hex_data(g_right_motor_run_state.pwm_rate);
             break;
         }
         // 减速，占空比逐步下降
         case SLOW:
         {
+            // uart_log_data('-');
             g_left_motor_run_state.pwm_rate = 
             (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_left_motor_run_state.pwm_rate : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
-
+            // uart_log_hex_data(g_left_motor_run_state.pwm_rate);
             g_right_motor_run_state.pwm_rate = 
             (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_right_motor_run_state.pwm_rate : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            // uart_log_hex_data(g_right_motor_run_state.pwm_rate);
             break;
         }
         // 全速前进，占空比拉满
@@ -181,6 +188,7 @@ void exec_car_pwm_update(enum car_run_state run_state)
             break;
         }
     current_right_command_status = SWITCH_OFF;
+    current_right_command_times = 0;
 }
 
 void init_motor_driver()
@@ -212,6 +220,27 @@ void update_motor_state(struct command_key *command_key)
             LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
             exec_car_state_update(RIGHT);
             break;
+        case COMMAND_LEFT_1:
+            // uart_log_string_data("e:9"); // send 9
+            LED_LEFT_TOP = !LED_LEFT_TOP;
+            exec_car_state_update(MOVE);
+            exec_car_pwm_update(FATEST);
+            break;
+        case COMMAND_LEFT_2:
+            // uart_log_string_data("e:A"); // send A
+            // LED_LEFT_DOWN = !LED_LEFT_DOWN;
+            // stop();
+            break;
+        case COMMAND_RIGHT_1:
+            // uart_log_string_data("e:B"); // send B
+            LED_LEFT_LEFT = !LED_LEFT_LEFT;
+            exec_car_state_update(LEFT_BACK);
+            break;
+        case COMMAND_RIGHT_2:
+            // uart_log_string_data("e:C"); // send C
+            LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
+            exec_car_state_update(RIGHT_BACK);
+            break;
         case COMMAND_NULL:
             stop();
             return;
@@ -241,29 +270,9 @@ void update_motor_state(struct command_key *command_key)
             LED_RIGHT_RIGHT = !LED_RIGHT_RIGHT;
             exec_car_pwm_update(RIGHT_TUNE);
             break;
-        case COMMAND_LEFT_1:
-            // uart_log_string_data("e:9"); // send 9
-            LED_LEFT_TOP = !LED_LEFT_TOP;
-            exec_car_state_update(MOVE);
-            exec_car_pwm_update(FATEST);
-            break;
-        case COMMAND_LEFT_2:
-            // uart_log_string_data("e:A"); // send A
-            // LED_LEFT_DOWN = !LED_LEFT_DOWN;
-            // stop();
-            break;
-        case COMMAND_RIGHT_1:
-            uart_log_string_data("e:B"); // send B
-            LED_LEFT_LEFT = !LED_LEFT_LEFT;
-            exec_car_state_update(LEFT_BACK);
-            break;
-        case COMMAND_RIGHT_2:
-            uart_log_string_data("e:C"); // send C
-            LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
-            exec_car_state_update(RIGHT_BACK);
-            break;
         case COMMAND_NULL:
             current_right_command_status = SWITCH_ON;
+            current_right_command_times  = 0;
             return;
         default:
             break;
