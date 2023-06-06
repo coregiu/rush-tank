@@ -228,8 +228,9 @@ void update_motor_state(struct command_key *command_key)
             break;
         case COMMAND_LEFT_2:
             // uart_log_string_data("e:A"); // send A
-            // LED_LEFT_DOWN = !LED_LEFT_DOWN;
-            // stop();
+            LED_LEFT_DOWN = !LED_LEFT_DOWN;
+            exec_car_state_update(BACK);
+            exec_car_pwm_update(FATEST);
             break;
         case COMMAND_RIGHT_1:
             // uart_log_string_data("e:B"); // send B
