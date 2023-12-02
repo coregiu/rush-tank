@@ -3,8 +3,8 @@
   *
   * main function
   * author: coregiu
-  * 
-  * 
+  *
+  *
   ******************************************************************************
 **/
 
@@ -13,7 +13,7 @@
 #define READ_PS2_INTVAL_TIME_MS_H   0XFC
 #define READ_PS2_INTVAL_TIME_MS_L   0X66
 
-struct motor_config g_motor_config = {0XFC, 0X66, 5, 1};
+struct motor_config g_motor_config = {0XFC, 0X66, 2, 1};
 
 void delay_time_ms(unsigned int mil_sec)
 {
@@ -31,7 +31,7 @@ void init_timer_0()
 	// init timer0
 	TMOD |= 0X01;
     TH0 = g_motor_config.motor_period_h;
-    TL0 = g_motor_config.motor_period_l; 
+    TL0 = g_motor_config.motor_period_l;
 	ET0 = 1;
     TR0 = 1;
 	EA  = 1; //开启总中断
@@ -48,7 +48,7 @@ void init_uart()
 	TL1  = 0xfd;
 	TR1  = 1;
 	ES   = 0;
-	SCON = 0X50; 
+	SCON = 0X50;
 	EA   = 1; //开启总中断
 }
 
@@ -66,11 +66,11 @@ void main()
 	{
 		// read ps2 command and set is_has_command/non_motor_cmd_times value.
         struct command_key command_key = {0, 0, MODULE_MOTOR};
-        
+
 		read_ps2(&command_key);
         // uart_log_hex_data(key_module);
 		// executet the commands.
-		execute_commands(&command_key); 
+		execute_commands(&command_key);
 		delay_time_ms(150);
 	}
 }

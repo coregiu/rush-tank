@@ -3,8 +3,8 @@
   *
   * main controller
   * author: coregiu
-  * 
-  * 
+  *
+  *
   ******************************************************************************
 **/
 
@@ -12,7 +12,7 @@
 
 /**
  * init uart and all receive modules
- * 
+ *
  */
 void init_modules()
 {
@@ -22,7 +22,7 @@ void init_modules()
 /**
  * receive ps2 data, convert to commands,
  * and notify modules to execute commands;
- * 
+ *
  */
 void execute_commands(struct command_key *command_key)
 {
@@ -33,7 +33,7 @@ void execute_commands(struct command_key *command_key)
  * notify modules to execute the commands.
  * car_module: the module of car, such as motor, music, led
  * car_cmd: the command
- * 
+ *
  */
 void notify_all(struct command_key *command_key)
 {
@@ -43,7 +43,7 @@ void notify_all(struct command_key *command_key)
     {
         motor_driver.update_state(command_key);
         break;
-    }        
+    }
     default:
         break;
     }
