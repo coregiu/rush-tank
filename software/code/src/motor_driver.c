@@ -3,7 +3,7 @@
   *
   * The driver of motor
   * author: coregiu
-  * 
+  *
   * | 按键     | 功能                                     | 监控指示灯   |
   * | -------- | --------------------------------------- | ---------- |
   * | 左侧上键 | 坦克前进，长按有效，放开停止                  | P0_0       |
@@ -18,7 +18,7 @@
   * | 左侧2键  | 坦克停止                                   | P0_1       |
   * | 右侧1键  | 坦克左向飘移                               | P0_2        |
   * | 右侧2键  | 坦克右向飘移                               | P0_3        |
-  * 
+  *
   * MOVE command:
   *     key: LEFT_TOP
   *     monitor led: P0_0
@@ -29,7 +29,7 @@
   *         RIGHT_EN = 1
   *         RIGHT_MV = 1
   *         RIGHT_BK = 0
-  * 
+  *
   * BACK command:
   *     key: LEFT_DOWN
   *     monitor led: P0_1
@@ -40,7 +40,7 @@
   *         RIGHT_EN = 1
   *         RIGHT_MV = 0
   *         RIGHT_BK = 1
-  * 
+  *
   * TURN LEFT command:
   *     key: LEFT_LEFT
   *     monitor led: P0_2
@@ -51,7 +51,7 @@
   *         RIGHT_EN = 1
   *         RIGHT_MV = 1
   *         RIGHT_BK = 0
-  * 
+  *
   * TURN RIGHT command:
   *     key: LEFT_RIGHT
   *     monitor led: P0_3
@@ -62,14 +62,14 @@
   *         RIGHT_EN = 0
   *         RIGHT_MV = 0
   *         RIGHT_BK = 0
-  * 
+  *
   * P2_0 : RIGHT_EN  L298N_EnA
   * P2_1 : RIGHT_MV  L298N_IN2
-  * P2_2 : RIGHT_BK  L298N_IN1 
+  * P2_2 : RIGHT_BK  L298N_IN1
   * P2_3 : LEFT_EN   L298N_EnB
   * P2_4 : LEFT_MV   L298N_IN4
   * P2_5 : LEFT_BK   L298N_IN3
-  * 
+  *
   ******************************************************************************
 **/
 #include <motor_driver.h>
@@ -78,38 +78,36 @@
 // the position of gpio in CAR_STATE_LIST array.
 enum gpio_position
 {
-    LEFT_EN_POSITION  = 0, 
-    LEFT_MV_POSITION  = 1, 
-    LEFT_BK_POSITION  = 2, 
-    RIGHT_EN_POSITION = 3, 
-    RIGHT_MV_POSITION = 4, 
+    LEFT_EN_POSITION  = 0,
+    LEFT_MV_POSITION  = 1,
+    LEFT_BK_POSITION  = 2,
+    RIGHT_EN_POSITION = 3,
+    RIGHT_MV_POSITION = 4,
     RIGHT_BK_POSITION = 5
 };
 
 // car sate to set to gpio: {LEFT_EN, LEFT_MV, LEFT_BK, RIGHT_EN, RIGHT_MV, RIGHT_BK}
 const uchar CAR_STATE_LIST[7][6] = {{0, 0, 0, 0, 0, 0},  // init
-                                    {2, 1, 0, 2, 1, 0},  // move
-                                    {2, 0, 1, 2, 0, 1},  // back
-                                    {0, 0, 0, 2, 1, 0},  // left
-                                    {2, 1, 0, 0, 0, 0},  // right
+                                    {5, 1, 0, 5, 1, 0},  // move
+                                    {5, 0, 1, 5, 0, 1},  // back
+                                    {0, 0, 0, 5, 1, 0},  // left
+                                    {5, 1, 0, 0, 0, 0},  // right
                                     {5, 1, 0, 5, 0, 1},  // left_back
                                     {5, 0, 1, 5, 1, 0}}; // right_back
 
-const uchar RIGHT_KEY_PERIOD = 3;
+const uchar DEFAULT_PWM_HIGHT_TIMTES = 3; // 默认占空比次数
 
 enum car_run_state current_car_status = STOP;
 struct motor_run_state g_left_motor_run_state  = {0, 0, 0};
 struct motor_run_state g_right_motor_run_state = {0, 0, 0};
-uchar current_right_command_status = SWITCH_ON;
-uchar current_right_command_times  = 0;
+
+uchar current_pwm_hight_timtes;
 
 void stop()
 {
     g_left_motor_run_state.pwm_rate  = 0;
     g_right_motor_run_state.pwm_rate = 0;
     current_car_status = STOP;
-    current_right_command_status = SWITCH_ON;
-    current_right_command_times  = 0;
 }
 
 void exec_car_state_update(enum car_run_state run_state)
@@ -132,11 +130,6 @@ void exec_car_state_update(enum car_run_state run_state)
 
 void exec_car_pwm_update(enum car_run_state run_state)
 {
-    if (current_right_command_status == SWITCH_OFF && current_right_command_times < RIGHT_KEY_PERIOD)
-    {
-        current_right_command_times++;
-        return;
-    }
     switch (run_state)
         {
         // 加速，占空比逐步提升
@@ -155,10 +148,10 @@ void exec_car_pwm_update(enum car_run_state run_state)
         case SLOW:
         {
             // uart_log_data('-');
-            g_left_motor_run_state.pwm_rate = 
+            g_left_motor_run_state.pwm_rate =
             (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_left_motor_run_state.pwm_rate : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
             // uart_log_hex_data(g_left_motor_run_state.pwm_rate);
-            g_right_motor_run_state.pwm_rate = 
+            g_right_motor_run_state.pwm_rate =
             (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_right_motor_run_state.pwm_rate : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
             // uart_log_hex_data(g_right_motor_run_state.pwm_rate);
             break;
@@ -173,27 +166,24 @@ void exec_car_pwm_update(enum car_run_state run_state)
         // 全速前进，占空比拉满
         case LEFT_TUNE:
         {
-            g_right_motor_run_state.pwm_rate = 
-            (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_right_motor_run_state.pwm_rate : (g_right_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            g_left_motor_run_state.pwm_rate = current_pwm_hight_timtes;
             break;
         }
         // 全速前进，占空比拉满
         case RIGHT_TUNE:
         {
-            g_left_motor_run_state.pwm_rate = 
-            (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_left_motor_run_state.pwm_rate : (g_left_motor_run_state.pwm_rate - g_motor_config.pwm_change_step);
+            g_right_motor_run_state.pwm_rate = current_pwm_hight_timtes;
             break;
         }
         default:
             break;
         }
-    current_right_command_status = SWITCH_OFF;
-    current_right_command_times = 0;
 }
 
 void init_motor_driver()
 {
     exec_car_state_update(STOP);
+    current_pwm_hight_timtes = DEFAULT_PWM_HIGHT_TIMTES;
 }
 
 void update_motor_state(struct command_key *command_key)
@@ -223,24 +213,22 @@ void update_motor_state(struct command_key *command_key)
         case COMMAND_LEFT_1:
             // uart_log_string_data("e:9"); // send 9
             LED_LEFT_TOP = !LED_LEFT_TOP;
-            exec_car_state_update(MOVE);
-            exec_car_pwm_update(FATEST);
+            exec_car_state_update(LEFT_BACK);
             break;
         case COMMAND_LEFT_2:
             // uart_log_string_data("e:A"); // send A
             LED_LEFT_DOWN = !LED_LEFT_DOWN;
-            exec_car_state_update(BACK);
-            exec_car_pwm_update(FATEST);
+            exec_car_state_update(RIGHT_BACK);
             break;
         case COMMAND_RIGHT_1:
             // uart_log_string_data("e:B"); // send B
             LED_LEFT_LEFT = !LED_LEFT_LEFT;
-            exec_car_state_update(LEFT_BACK);
+            current_pwm_hight_timtes = current_pwm_hight_timtes >= g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : current_pwm_hight_timtes + g_motor_config.pwm_change_step;
             break;
         case COMMAND_RIGHT_2:
             // uart_log_string_data("e:C"); // send C
             LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
-            exec_car_state_update(RIGHT_BACK);
+            current_pwm_hight_timtes = current_pwm_hight_timtes <= g_motor_config.pwm_change_step ? g_motor_config.pwm_change_step : current_pwm_hight_timtes - g_motor_config.pwm_change_step;
             break;
         case COMMAND_NULL:
             stop();
@@ -272,8 +260,6 @@ void update_motor_state(struct command_key *command_key)
             exec_car_pwm_update(RIGHT_TUNE);
             break;
         case COMMAND_NULL:
-            current_right_command_status = SWITCH_ON;
-            current_right_command_times  = 0;
             return;
         default:
             break;

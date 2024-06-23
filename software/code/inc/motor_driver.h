@@ -3,7 +3,7 @@
   *
   * The driver of motor
   * author: coregiu
-  * 
+  *
   * | 按键     | 功能                                     | 监控指示灯   |
   * | -------- | --------------------------------------- | ---------- |
   * | 左侧上键 | 坦克前进，长按有效，放开停止                  | P0_0       |
@@ -18,7 +18,7 @@
   * | 左侧2键  | 坦克停止                                   | P0_1       |
   * | 右侧1键  | 坦克左向飘移                               | P0_2        |
   * | 右侧2键  | 坦克右向飘移                               | P0_3        |
-  * 
+  *
   * MOVE command:
   *     key: LEFT_TOP
   *     monitor led: P0_0
@@ -29,7 +29,7 @@
   *         RIGHT_EN = 20%
   *         RIGHT_MV = 1
   *         RIGHT_BK = 0
-  * 
+  *
   * BACK command:
   *     key: LEFT_DOWN
   *     monitor led: P0_1
@@ -40,7 +40,7 @@
   *         RIGHT_EN = 20%
   *         RIGHT_MV = 0
   *         RIGHT_BK = 1
-  * 
+  *
   * TURN LEFT command:
   *     key: LEFT_LEFT
   *     monitor led: P0_2
@@ -51,7 +51,7 @@
   *         RIGHT_EN = 20%
   *         RIGHT_MV = 1
   *         RIGHT_BK = 0
-  * 
+  *
   * TURN RIGHT command:
   *     key: LEFT_RIGHT
   *     monitor led: P0_3
@@ -62,14 +62,14 @@
   *         RIGHT_EN = 0
   *         RIGHT_MV = 0
   *         RIGHT_BK = 0
-  * 
+  *
   * P2_0 : RIGHT_EN  L298N_EnA
   * P2_1 : RIGHT_MV  L298N_IN2
-  * P2_2 : RIGHT_BK  L298N_IN1 
+  * P2_2 : RIGHT_BK  L298N_IN1
   * P2_3 : LEFT_EN   L298N_EnB
   * P2_4 : LEFT_MV   L298N_IN4
   * P2_5 : LEFT_BK   L298N_IN3
-  * 
+  *
   ******************************************************************************
 **/
 #ifndef MOTOR_DRIVER_H
@@ -106,8 +106,8 @@ struct motor_config
 {
     uchar motor_period_h;
     uchar motor_period_l;
-    uchar pwm_period_times;
-    uchar pwm_change_step;
+    uchar pwm_period_times; // 占空比周期次数
+    uchar pwm_change_step;  // pwm每次调整步长
 };
 
 extern struct motor_config g_motor_config;

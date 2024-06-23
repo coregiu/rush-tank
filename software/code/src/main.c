@@ -13,7 +13,8 @@
 #define READ_PS2_INTVAL_TIME_MS_H   0XFC
 #define READ_PS2_INTVAL_TIME_MS_L   0X66
 
-struct motor_config g_motor_config = {0XFC, 0X66, 2, 1};
+// 默认配置，占空比周期5次， 步长1
+struct motor_config g_motor_config = {0XFC, 0X66, 5, 1};
 
 void delay_time_ms(unsigned int mil_sec)
 {
