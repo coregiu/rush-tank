@@ -4,7 +4,7 @@
   * PS2 Receiver
   * author: coregiu
   * Baudrate 9600
-  * 
+  *
   ******************************************************************************
 **/
 
@@ -45,17 +45,17 @@ out[6] 00——7F——FF 右摇杆从上到下
 /********vars of ps2*********/
 const uchar scan[9] = {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-const uchar command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MODULE_MOTOR}, 
-										      {3, 0xBF, COMMAND_LEFT_DOWN,   MODULE_MOTOR}, 
-										      {3, 0x7F, COMMAND_LEFT_LEFT,   MODULE_MOTOR}, 
-										      {3, 0xDF, COMMAND_LEFT_RIGHT,  MODULE_MOTOR}, 
-										      {4, 0xEF, COMMAND_RIGHT_TOP,   MODULE_MOTOR}, 
-										      {4, 0xBF, COMMAND_RIGHT_DOWN,  MODULE_MOTOR}, 
-										      {4, 0x7F, COMMAND_RIGHT_LEFT,  MODULE_MOTOR}, 
-										      {4, 0xDF, COMMAND_RIGHT_RIGHT, MODULE_MOTOR}, 
-										      {4, 0xFB, COMMAND_LEFT_1,      MODULE_MOTOR}, 
-										      {4, 0xFE, COMMAND_LEFT_2,      MODULE_MOTOR}, 
-										      {4, 0xF7, COMMAND_RIGHT_1,     MODULE_MOTOR}, 
+const uchar command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MODULE_MOTOR},
+										      {3, 0xBF, COMMAND_LEFT_DOWN,   MODULE_MOTOR},
+										      {3, 0x7F, COMMAND_LEFT_LEFT,   MODULE_MOTOR},
+										      {3, 0xDF, COMMAND_LEFT_RIGHT,  MODULE_MOTOR},
+										      {4, 0xEF, COMMAND_RIGHT_TOP,   MODULE_MOTOR},
+										      {4, 0xBF, COMMAND_RIGHT_DOWN,  MODULE_MOTOR},
+										      {4, 0x7F, COMMAND_RIGHT_LEFT,  MODULE_MOTOR},
+										      {4, 0xDF, COMMAND_RIGHT_RIGHT, MODULE_MOTOR},
+										      {4, 0xFB, COMMAND_LEFT_1,      MODULE_MOTOR},
+										      {4, 0xFE, COMMAND_LEFT_2,      MODULE_MOTOR},
+										      {4, 0xF7, COMMAND_RIGHT_1,     MODULE_MOTOR},
 										      {4, 0xFD, COMMAND_RIGHT_2,     MODULE_MOTOR}};
 
 uchar out[9];
@@ -75,7 +75,7 @@ void send_ps2_key_info()
 // 	for (i = 0; i < n; i++)
 // 	{
 // 		_nop_();
-// 	}	
+// 	}
 // }
 
 
@@ -116,7 +116,7 @@ void convert_commands(struct command_key *command_key)
 	{
 		if (out[command_map[i][0]] == command_map[i][1])
 		{
-            if (i <= 3 || i>= 8) // left control
+            if (i <= 3 || i == 8 || i == 9) // left control
             {
                 command_key->left_key   = command_map[i][2];
                 command_key->exe_module = command_map[i][3];

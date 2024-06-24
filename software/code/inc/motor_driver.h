@@ -87,6 +87,7 @@
 // CAR run state
 enum car_run_state
 {
+    NO_PWM = 99, // do not execute pwm and keep car status.
     STOP = 0,
     MOVE = 1,
     BACK = 2,
@@ -130,5 +131,8 @@ struct motor_pwm_control
 };
 extern const struct motor_pwm_control left_motor_pwm_controller;
 extern const struct motor_pwm_control right_motor_pwm_controller;
+
+void log_command(struct command_key *command_key);
+void log_motor_state(struct motor_run_state *motor_run_state);
 
 #endif
