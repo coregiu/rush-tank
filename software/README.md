@@ -27,7 +27,7 @@ pca9685： 舵机驱动使能模块，通过IIC连接pca9685驱动，将servos_d
 第一步，编译：
 
 ```shell
-$cd {work_path}/rucar/software/code
+$cd {work_path}/ruke/software/code
 $mkdir build
 $cd build
 $cmake ..
@@ -43,7 +43,7 @@ pca9685： 舵机使能
 第一步，编译：
 
 ```shell
-$cd {work_path}/rucar/software/code
+$cd {work_path}/ruke/software/code
 $mkdir build
 $cd build
 $cmake ..
@@ -62,20 +62,20 @@ $sudo sdcc led_basic.c -o led_basic.ihx
 
 ```shell
 $cd src
-$packihx RUCAR.ihx > RUCAR.hex
+$packihx RUKE.ihx > RUKE.hex
 ```
 
 第三步，烧录文件到MCU：
 
 ```shell
-$sudo stcflash RUCAR.hex 
+$sudo stcflash RUKE.hex
 ```
 
 
 此命令会自动寻找USB口发命令。如果有多个USB口，需要指定相应端口。
 
 ```shell
-$sudo stcflash RUCAR.hex --port /dev/ttyUSB0
+$sudo stcflash RUKE.hex --port /dev/ttyUSB0
 ```
 
 ## PS2通讯说明：

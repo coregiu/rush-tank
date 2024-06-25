@@ -354,26 +354,33 @@ void log_command(struct command_key *command_key)
     if (command_key->left_key == 1)
     {
         uart_log_data('1');
-    }else if (command_key->left_key == 2)
+    }
+    else if (command_key->left_key == 2)
     {
         uart_log_data('2');
-    }else if (command_key->left_key == 3)
+    }
+    else if (command_key->left_key == 3)
     {
         uart_log_data('3');
-    }else if (command_key->left_key == 4)
+    }
+    else if (command_key->left_key == 4)
     {
         uart_log_data('4');
-    }else if (command_key->left_key == 0)
+    }
+    else if (command_key->left_key == 0)
     {
         uart_log_data('0');
-    }else if (command_key->left_key == 9)
+    }
+    else if (command_key->left_key == 9)
     {
         uart_log_data('9');
-    }else if (command_key->left_key == 10)
+    }
+    else if (command_key->left_key == 10)
     {
         uart_log_data('1');
         uart_log_data('0');
-    }else
+    }
+    else
     {
         uart_log_data('-');
     }
@@ -381,27 +388,34 @@ void log_command(struct command_key *command_key)
     if (command_key->right_key == 5)
     {
         uart_log_data('5');
-    }else if (command_key->right_key == 6)
+    }
+    else if (command_key->right_key == 6)
     {
         uart_log_data('6');
-    }else if (command_key->right_key == 7)
+    }
+    else if (command_key->right_key == 7)
     {
         uart_log_data('7');
-    }else if (command_key->right_key == 8)
+    }
+    else if (command_key->right_key == 8)
     {
         uart_log_data('8');
-    }else if (command_key->right_key == 0)
+    }
+    else if (command_key->right_key == 0)
     {
         uart_log_data('0');
-    }else if (command_key->right_key == 11)
+    }
+    else if (command_key->right_key == 11)
     {
         uart_log_data('1');
         uart_log_data('1');
-    }else if (command_key->right_key == 12)
+    }
+    else if (command_key->right_key == 12)
     {
         uart_log_data('1');
         uart_log_data('2');
-    }else
+    }
+    else
     {
         uart_log_data('-');
     }
