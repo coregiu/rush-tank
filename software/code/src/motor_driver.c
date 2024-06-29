@@ -106,13 +106,6 @@ uchar pre_right_cmd;
 uchar current_pwm;
 
 
-void stop()
-{
-    g_left_motor_run_state.pwm_rate  = STOP;
-    g_right_motor_run_state.pwm_rate = STOP;
-    current_car_status = STOP;
-}
-
 void exec_car_state_update(enum car_run_state run_state)
 {
     if (current_car_status == run_state)
@@ -123,14 +116,22 @@ void exec_car_state_update(enum car_run_state run_state)
     LEFT_EN  = CAR_STATE_LIST[run_state][LEFT_EN_POSITION];
     LEFT_MV  = CAR_STATE_LIST[run_state][LEFT_MV_POSITION];
     LEFT_BK  = CAR_STATE_LIST[run_state][LEFT_BK_POSITION];
-    g_left_motor_run_state.pwm_rate = NO_PWM;
+    g_left_motor_run_state.pwm_rate = run_state == STOP ? NO_PWM : current_pwm;
 
     RIGHT_EN = CAR_STATE_LIST[run_state][RIGHT_EN_POSITION];
     RIGHT_MV = CAR_STATE_LIST[run_state][RIGHT_MV_POSITION];
     RIGHT_BK = CAR_STATE_LIST[run_state][RIGHT_BK_POSITION];
-    g_right_motor_run_state.pwm_rate = NO_PWM;
+    g_right_motor_run_state.pwm_rate = run_state == STOP ? NO_PWM : current_pwm;
 
     current_car_status = run_state;
+}
+
+
+void init_motor_driver()
+{
+    pre_right_cmd = COMMAND_NULL;
+    current_pwm = NO_PWM;
+    exec_car_state_update(STOP);
 }
 
 void exec_car_pwm_update(uchar command)
@@ -139,7 +140,9 @@ void exec_car_pwm_update(uchar command)
     {
         return;
     }
+
     pre_right_cmd = command;
+
     switch (command)
         {
         // 加速，占空比逐步提升
@@ -187,16 +190,18 @@ void exec_car_pwm_update(uchar command)
         case COMMAND_RIGHT_1:
         {
             LED_LEFT_LEFT = !LED_LEFT_LEFT;
-            g_left_motor_run_state.pwm_rate = NO_PWM;
-            g_right_motor_run_state.pwm_rate = NO_PWM;
+            current_pwm = NO_PWM;
+            g_left_motor_run_state.pwm_rate = current_pwm;
+            g_right_motor_run_state.pwm_rate = current_pwm;
             break;
         }
         // 最低速前进
         case COMMAND_RIGHT_2:
         {
             LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
-            g_left_motor_run_state.pwm_rate = g_motor_config.pwm_change_step;
-            g_right_motor_run_state.pwm_rate = g_motor_config.pwm_change_step;
+            current_pwm = g_motor_config.pwm_change_step;
+            g_left_motor_run_state.pwm_rate = current_pwm;
+            g_right_motor_run_state.pwm_rate = current_pwm;
             break;
         }
         // 恢复当前占空比行驶
@@ -210,13 +215,6 @@ void exec_car_pwm_update(uchar command)
             break;
         }
 
-}
-
-void init_motor_driver()
-{
-    pre_right_cmd = COMMAND_NULL;
-    current_pwm = NO_PWM;
-    exec_car_state_update(STOP);
 }
 
 void update_motor_state(struct command_key *command_key)
@@ -255,8 +253,8 @@ void update_motor_state(struct command_key *command_key)
             exec_car_state_update(RIGHT_BACK);
             break;
         case COMMAND_NULL:
-            stop();
-            return;
+            exec_car_state_update(STOP);
+            break;
         default:
             break;
     }
@@ -273,6 +271,7 @@ void left_motor_pwm_control()
 {
     if (g_left_motor_run_state.pwm_rate == NO_PWM)
     {
+        LEFT_EN = 1;
         return;
     }
     if (g_left_motor_run_state.pwm_rate == STOP)
@@ -307,6 +306,7 @@ void control_right_motor_pwm()
 {
     if (g_right_motor_run_state.pwm_rate == NO_PWM)
     {
+        RIGHT_EN = 1;
         return;
     }
     if (g_right_motor_run_state.pwm_rate == STOP)

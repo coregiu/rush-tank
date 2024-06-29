@@ -13,7 +13,7 @@
 #define READ_PS2_INTVAL_TIME_MS_H   0XFC
 #define READ_PS2_INTVAL_TIME_MS_L   0X66
 
-// Ä¬ÈÏÅäÖÃ£¬Õ¼¿Õ±ÈÖÜÆÚ5´Î£¬ ²½³¤1
+// é»˜è®¤é…ç½®ï¼Œå ç©ºæ¯”å‘¨æœŸ5æ¬¡ï¼Œ æ­¥é•¿1
 struct motor_config g_motor_config = {0XFC, 0X66, 5, 1};
 
 void delay_time_ms(unsigned int mil_sec)
@@ -35,7 +35,7 @@ void init_timer_0()
     TL0 = g_motor_config.motor_period_l;
 	ET0 = 1;
     TR0 = 1;
-	EA  = 1; //¿ªÆô×ÜÖĞ¶Ï
+	EA  = 1; //å¼€å¯æ€»ä¸­æ–­
 }
 
 /**
@@ -44,13 +44,13 @@ void init_timer_0()
 void init_uart()
 {
 	// init uart
-	TMOD |= 0x20; //ÓÃ¶¨Ê±Æ÷ÉèÖÃ´®¿Ú²¨ÌØÂÊ	   9600
+	TMOD |= 0x20; //ç”¨å®šæ—¶å™¨è®¾ç½®ä¸²å£æ³¢ç‰¹ç‡	   9600
 	TH1  = 0xfd;
 	TL1  = 0xfd;
 	TR1  = 1;
 	ES   = 0;
 	SCON = 0X50;
-	EA   = 1; //¿ªÆô×ÜÖĞ¶Ï
+	EA   = 1; //å¼€å¯æ€»ä¸­æ–­
 }
 
 void main()
