@@ -87,7 +87,6 @@
 // CAR run state
 enum car_run_state
 {
-    NO_PWM = 99, // do not execute pwm and keep car status.
     STOP = 0,
     MOVE = 1,
     BACK = 2,
@@ -101,17 +100,6 @@ enum car_run_state
     RIGHT_TUNE = 10,
     FATEST = 11
 };
-
-// the main configuration of car.
-struct motor_config
-{
-    uchar motor_period_h;
-    uchar motor_period_l;
-    uchar pwm_period_times; // 占空比周期次数
-    uchar pwm_change_step;  // pwm每次调整步长
-};
-
-extern struct motor_config g_motor_config;
 
 struct motor_run_state
 {

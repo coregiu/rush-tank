@@ -66,7 +66,7 @@ void main()
 	while (1)
 	{
 		// read ps2 command and set is_has_command/non_motor_cmd_times value.
-        struct command_key command_key = {0, 0, MODULE_MOTOR};
+        struct command_key command_key = {0, 0, MODULE_NULL};
 
 		read_ps2(&command_key);
         // uart_log_hex_data(key_module);

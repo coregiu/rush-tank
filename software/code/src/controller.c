@@ -16,6 +16,7 @@
  */
 void init_modules()
 {
+    pwm_manager.init();
     motor_driver.init();
 }
 
@@ -44,6 +45,15 @@ void notify_all(struct command_key *command_key)
         motor_driver.update_state(command_key);
         break;
     }
+    case MODULE_PWM:
+    {
+        pwm_manager.update_state(command_key);
+        break;
+    }
+    case MODULE_NULL:
+        motor_driver.update_state(command_key);
+        pwm_manager.update_state(command_key);
+        break;
     default:
         break;
     }

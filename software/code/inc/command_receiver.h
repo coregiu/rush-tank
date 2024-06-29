@@ -3,8 +3,8 @@
   *
   * command define and command receiver.
   * author: coregiu
-  * 
-  * 
+  *
+  *
   ******************************************************************************
 **/
 
@@ -56,10 +56,11 @@ enum car_commands
 // define module id
 enum module
 {
-    MODULE_MOTOR = 0,
-    MODULE_MUSIC = 1,
-    MODULE_LED = 2,
-    MODULE_SERVO = 3
+    MODULE_NULL  = 0,
+    MODULE_MOTOR = 1,
+    MODULE_PWM   = 2,
+    MODULE_LED   = 3,
+    MODULE_SERVO = 4
 };
 
 struct command_key
@@ -76,6 +77,17 @@ struct module_command_receiver
     void (*update_state)(struct command_key *command_key);
 };
 
+// the main configuration of car.
+struct motor_config
+{
+    uchar motor_period_h;
+    uchar motor_period_l;
+    uchar pwm_period_times; // 占空比周期次数
+    uchar pwm_change_step;  // pwm每次调整步长
+};
+
 extern void delay_time_ms(unsigned int mil_sec);
 
+extern struct motor_config g_motor_config;
+extern uchar tune_pwm_step;//左右方向微调幅度
 #endif

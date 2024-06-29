@@ -45,7 +45,7 @@ out[6] 00——7F——FF 右摇杆从上到下
 /********vars of ps2*********/
 const uchar scan[9] = {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-const uchar command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MODULE_MOTOR},
+const uchar command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,   MODULE_MOTOR},
 										      {3, 0xBF, COMMAND_LEFT_DOWN,   MODULE_MOTOR},
 										      {3, 0x7F, COMMAND_LEFT_LEFT,   MODULE_MOTOR},
 										      {3, 0xDF, COMMAND_LEFT_RIGHT,  MODULE_MOTOR},
@@ -55,8 +55,8 @@ const uchar command_map[COMMANDS_LENGTH][4] = {{3, 0xEF, COMMAND_LEFT_TOP,    MO
 										      {4, 0xDF, COMMAND_RIGHT_RIGHT, MODULE_MOTOR},
 										      {4, 0xFB, COMMAND_LEFT_1,      MODULE_MOTOR},
 										      {4, 0xFE, COMMAND_LEFT_2,      MODULE_MOTOR},
-										      {4, 0xF7, COMMAND_RIGHT_1,     MODULE_MOTOR},
-										      {4, 0xFD, COMMAND_RIGHT_2,     MODULE_MOTOR}};
+										      {4, 0xF7, COMMAND_RIGHT_1,     MODULE_PWM},
+										      {4, 0xFD, COMMAND_RIGHT_2,     MODULE_PWM}};
 
 uchar out[9];
 
@@ -123,7 +123,11 @@ void convert_commands(struct command_key *command_key)
             }
 			else // right control
             {
-                command_key->right_key   = command_map[i][2];
+                command_key->right_key  = command_map[i][2];
+                if (command_key->exe_module == MODULE_NULL)
+                {
+                    command_key->exe_module = command_map[i][3];
+                }
             }
 		}
 	}

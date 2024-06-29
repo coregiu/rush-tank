@@ -4,20 +4,20 @@
   * The driver of motor
   * author: coregiu
   *
-  *  | 按键     | 功能                         | 监控指示灯 |
-  *  | -------- | ---------------------------- | ---------- |
-  *  | 左侧上键 | 坦克前进，长按有效，放开停止                  | P0_0       |
-  *  | 左侧下键 | 坦克后退，长按有效，放开停止                  | P0_1       |
-  *  | 左侧左键 | 坦克左转，长按有效，放开停止                  | P0_2       |
-  *  | 左侧右键 | 坦克右转，长按有效，放开停止                  | P0_3       |
-  *  | 右侧上健 | 加速行驶                                  | P0_4       |
-  *  | 右侧下键 | 减速行驶                                  | P0_5       |
-  *  | 右侧左键 | 坦克向左微调80%PWM，长按有效，放开恢复正常行驶  | P0_6       |
-  *  | 右侧右键 | 坦克向右微调80%PWM，长按有效，放开恢复正常行驶  | P0_7       |
-  *  | 左侧1键  | 顺时针快速调头                              | P0_0       |
-  *  | 左侧2键  | 逆时针快速调头                              | P0_1       |
-  *  | 右侧1键  | 微调行驶角度，PWN加20%                      | P0_2       |
-  *  | 右侧2键  | 微调行驶角度，PWN减20%                      | P0_3       |
+  * | 按键     | 功能                         | 监控指示灯 |
+  * | -------- | ---------------------------- | ---------- |
+  * | 左侧上键 | 坦克前进，长按有效，放开停止                  | P0_0       |
+  * | 左侧下键 | 坦克后退，长按有效，放开停止                  | P0_1       |
+  * | 左侧左键 | 坦克左转，长按有效，放开停止                  | P0_2       |
+  * | 左侧右键 | 坦克右转，长按有效，放开停止                  | P0_3       |
+  * | 左侧1键  | 顺时针快速调头                              | P0_4       |
+  * | 左侧2键  | 逆时针快速调头                              | P0_5       |
+  * | 右侧上健 | 加速行驶                                  | P0_0       |
+  * | 右侧下键 | 减速行驶                                  | P0_1      |
+  * | 右侧左键 | 坦克向左微调80%PWM，长按有效，放开恢复正常行驶  | P0_2       |
+  * | 右侧右键 | 坦克向右微调80%PWM，长按有效，放开恢复正常行驶  | P0_3       |
+  * | 右侧1键  | 同时按住左侧健时，直接最大速度行驶。 不按左侧健时，微调行驶角度，PWN加20%         | P0_4       |
+  * | 右侧2键  | 同时按住左侧健时，直接最小速度行驶。 不按左侧健时，微调行驶角度，PWN减20%         | P0_5       |
   *
   * MOVE command:
   *     key: LEFT_TOP
@@ -95,13 +95,16 @@ const uchar CAR_STATE_LIST[7][6] = {{0, 0, 0, 0, 0, 0},  // init
                                     {1, 1, 0, 1, 0, 1},  // left_back
                                     {1, 0, 1, 1, 1, 0}}; // right_back
 
-const uchar DEFAULT_PWM_HIGHT_TIMTES = 3; // 默认占空比次数
+const uchar NO_PWM = 99;
 
 enum car_run_state current_car_status = STOP;
 struct motor_run_state g_left_motor_run_state  = {0, 0, 0};
 struct motor_run_state g_right_motor_run_state = {0, 0, 0};
+uchar pre_right_cmd;
 
+// 当前系统的占空比，以此占空比来控制电机速度
 uchar current_pwm;
+
 
 void stop()
 {
@@ -112,87 +115,108 @@ void stop()
 
 void exec_car_state_update(enum car_run_state run_state)
 {
-    if (current_car_status != run_state)
+    if (current_car_status == run_state)
     {
-        LEFT_EN  = CAR_STATE_LIST[run_state][LEFT_EN_POSITION];
-        LEFT_MV  = CAR_STATE_LIST[run_state][LEFT_MV_POSITION];
-        LEFT_BK  = CAR_STATE_LIST[run_state][LEFT_BK_POSITION];
-        g_left_motor_run_state.pwm_rate = NO_PWM;
-
-        RIGHT_EN = CAR_STATE_LIST[run_state][RIGHT_EN_POSITION];
-        RIGHT_MV = CAR_STATE_LIST[run_state][RIGHT_MV_POSITION];
-        RIGHT_BK = CAR_STATE_LIST[run_state][RIGHT_BK_POSITION];
-        g_right_motor_run_state.pwm_rate = NO_PWM;
-
-        current_car_status == run_state;
+        return;
     }
+
+    LEFT_EN  = CAR_STATE_LIST[run_state][LEFT_EN_POSITION];
+    LEFT_MV  = CAR_STATE_LIST[run_state][LEFT_MV_POSITION];
+    LEFT_BK  = CAR_STATE_LIST[run_state][LEFT_BK_POSITION];
+    g_left_motor_run_state.pwm_rate = NO_PWM;
+
+    RIGHT_EN = CAR_STATE_LIST[run_state][RIGHT_EN_POSITION];
+    RIGHT_MV = CAR_STATE_LIST[run_state][RIGHT_MV_POSITION];
+    RIGHT_BK = CAR_STATE_LIST[run_state][RIGHT_BK_POSITION];
+    g_right_motor_run_state.pwm_rate = NO_PWM;
+
+    current_car_status = run_state;
 }
 
-void exec_car_pwm_update(enum car_run_state run_state)
+void exec_car_pwm_update(uchar command)
 {
-    switch (run_state)
+    if (pre_right_cmd == command)
+    {
+        return;
+    }
+    pre_right_cmd = command;
+    switch (command)
         {
         // 加速，占空比逐步提升
-        case FAST:
+        case COMMAND_RIGHT_TOP:
         {
-            // uart_log_data('-');
-            g_left_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
-            g_left_motor_run_state.pwm_rate = g_left_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_left_motor_run_state.pwm_rate;
-            // uart_log_hex_data(g_left_motor_run_state.pwm_rate);
-            g_right_motor_run_state.pwm_rate += g_motor_config.pwm_change_step;
-            g_right_motor_run_state.pwm_rate = g_right_motor_run_state.pwm_rate > g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : g_right_motor_run_state.pwm_rate;
-            // uart_log_hex_data(g_right_motor_run_state.pwm_rate);
+            LED_RIGHT_TOP = !LED_RIGHT_TOP;
+
+            current_pwm += g_motor_config.pwm_change_step;
+            current_pwm = current_pwm >= g_motor_config.pwm_period_times ? NO_PWM : current_pwm;
+
+            g_left_motor_run_state.pwm_rate = current_pwm;
+            g_right_motor_run_state.pwm_rate = current_pwm;
             break;
         }
         // 减速，占空比逐步下降
-        case SLOW:
+        case COMMAND_RIGHT_DOWN:
         {
-            // uart_log_data('-');
+            LED_RIGHT_DOWN = !LED_RIGHT_DOWN;
+
+            current_pwm = current_pwm == NO_PWM ? g_motor_config.pwm_period_times : current_pwm;
+            current_pwm -= g_motor_config.pwm_change_step;
+            current_pwm = current_pwm <= g_motor_config.pwm_change_step ? g_motor_config.pwm_change_step : current_pwm;
+
             g_left_motor_run_state.pwm_rate = current_pwm;
-            // g_left_motor_run_state.pwm_rate = (g_left_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_motor_config.pwm_change_step : g_left_motor_run_state.pwm_rate;
-            // uart_log_hex_data(g_left_motor_run_state.pwm_rate);
-            g_right_motor_run_state.pwm_rate = current_pwm;
-            // g_right_motor_run_state.pwm_rate = (g_right_motor_run_state.pwm_rate <= g_motor_config.pwm_change_step) ? g_motor_config.pwm_change_step : g_right_motor_run_state.pwm_rate;
-            // uart_log_hex_data(g_right_motor_run_state.pwm_rate);
-            break;
-        }
-        // 全速前进，占空比拉满
-        case FATEST:
-        {
-            g_left_motor_run_state.pwm_rate = g_motor_config.pwm_period_times;
-            g_right_motor_run_state.pwm_rate = g_motor_config.pwm_period_times;
-            break;
-        }
-        // 全速前进，占空比拉满
-        case LEFT_TUNE:
-        {
-            g_left_motor_run_state.pwm_rate = current_pwm;
-            break;
-        }
-        // 全速前进，占空比拉满
-        case RIGHT_TUNE:
-        {
             g_right_motor_run_state.pwm_rate = current_pwm;
             break;
         }
+        // 向左微调
+        case COMMAND_RIGHT_LEFT:
+        {
+            LED_RIGHT_LEFT = !LED_RIGHT_LEFT;
+            g_left_motor_run_state.pwm_rate = current_pwm > tune_pwm_step ? (current_pwm == NO_PWM ? g_motor_config.pwm_period_times : current_pwm) - tune_pwm_step  : 0;
+            g_right_motor_run_state.pwm_rate = current_pwm;
+            break;
+        }
+        // 向右微调
+        case COMMAND_RIGHT_RIGHT:
+        {
+            LED_RIGHT_RIGHT = !LED_RIGHT_RIGHT;
+            g_left_motor_run_state.pwm_rate = current_pwm;
+            g_right_motor_run_state.pwm_rate = current_pwm > tune_pwm_step ? (current_pwm == NO_PWM ? g_motor_config.pwm_period_times : current_pwm) - tune_pwm_step  : 0;
+            break;
+        }
         // 全速前进，占空比拉满
+        case COMMAND_RIGHT_1:
+        {
+            LED_LEFT_LEFT = !LED_LEFT_LEFT;
+            g_left_motor_run_state.pwm_rate = NO_PWM;
+            g_right_motor_run_state.pwm_rate = NO_PWM;
+            break;
+        }
+        // 最低速前进
+        case COMMAND_RIGHT_2:
+        {
+            LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
+            g_left_motor_run_state.pwm_rate = g_motor_config.pwm_change_step;
+            g_right_motor_run_state.pwm_rate = g_motor_config.pwm_change_step;
+            break;
+        }
+        // 恢复当前占空比行驶
         case COMMAND_NULL:
         {
-            g_left_motor_run_state.pwm_rate  = NO_PWM;
-            g_right_motor_run_state.pwm_rate = NO_PWM;
+            g_left_motor_run_state.pwm_rate  = current_pwm;
+            g_right_motor_run_state.pwm_rate = current_pwm;
             break;
         }
         default:
             break;
         }
-        // log_motor_state(&g_left_motor_run_state);
-        // log_motor_state(&g_right_motor_run_state);
+
 }
 
 void init_motor_driver()
 {
+    pre_right_cmd = COMMAND_NULL;
+    current_pwm = NO_PWM;
     exec_car_state_update(STOP);
-    current_pwm = DEFAULT_PWM_HIGHT_TIMTES;
 }
 
 void update_motor_state(struct command_key *command_key)
@@ -237,46 +261,10 @@ void update_motor_state(struct command_key *command_key)
             break;
     }
 
-    switch (command_key->right_key)
-    {
-        case COMMAND_RIGHT_TOP:
-            // uart_log_string_data("e:5"); // send 5
-            LED_RIGHT_TOP = !LED_RIGHT_TOP;
-            exec_car_pwm_update(FAST);
-            break;
-        case COMMAND_RIGHT_DOWN:
-            // uart_log_string_data("e:6"); // send 6
-            LED_RIGHT_DOWN = !LED_RIGHT_DOWN;
-            exec_car_pwm_update(SLOW);
-            break;
-        case COMMAND_RIGHT_LEFT:
-            // uart_log_string_data("e:7"); // send 7
-            LED_RIGHT_LEFT = !LED_RIGHT_LEFT;
-            exec_car_pwm_update(LEFT_TUNE);
-            break;
-        case COMMAND_RIGHT_RIGHT:
-            // uart_log_string_data("e:8"); // send 8
-            LED_RIGHT_RIGHT = !LED_RIGHT_RIGHT;
-            exec_car_pwm_update(RIGHT_TUNE);
-            break;
-        case COMMAND_RIGHT_1:
-            // uart_log_string_data("e:B"); // send B
-            LED_LEFT_LEFT = !LED_LEFT_LEFT;
-            current_pwm = current_pwm >= g_motor_config.pwm_period_times ? g_motor_config.pwm_period_times : current_pwm + g_motor_config.pwm_change_step;
-            break;
-        case COMMAND_RIGHT_2:
-            // uart_log_string_data("e:C"); // send C
-            LED_LEFT_RIGHT = !LED_LEFT_RIGHT;
-            current_pwm = current_pwm <= g_motor_config.pwm_change_step ? g_motor_config.pwm_change_step : current_pwm - g_motor_config.pwm_change_step;
-            break;
-        case COMMAND_NULL:
-            // uart_log_string_data("e:9"); // send 9
-            LED_RIGHT_RIGHT = !LED_RIGHT_RIGHT;
-            exec_car_pwm_update(COMMAND_NULL);
-            return;
-        default:
-            break;
-    }
+    exec_car_pwm_update(command_key->right_key);
+
+    // log_motor_state(&g_left_motor_run_state);
+    // log_motor_state(&g_right_motor_run_state);
 }
 
 const struct module_command_receiver motor_driver = {init_motor_driver, update_motor_state};
@@ -349,6 +337,9 @@ void control_right_motor_pwm()
 
 const struct motor_pwm_control right_motor_pwm_controller = {control_right_motor_pwm};
 
+/**
+ * 打印命令，格式： 左命令|左命令
+ */
 void log_command(struct command_key *command_key)
 {
     if (command_key->left_key == 1)
@@ -423,6 +414,9 @@ void log_command(struct command_key *command_key)
     uart_log_enter_char();
 }
 
+/**
+ * 打印PWN状态： 当前PWM值-当前循环次数-高电平占位次数。 先打左电机，后打右电机。
+ */
 void log_motor_state(struct motor_run_state *motor_run_state)
 {
     if (motor_run_state->pwm_rate == NO_PWM)
