@@ -75,18 +75,9 @@ L298N分两路电机控制，每路电机有三个信号引脚： 输入1（后�
 https://www.bilibili.com/video/BV1Zu411p7aM/?spm_id_from=333.999.0.0
 
 
-##### 正视
+![](RUKE_F.png)
 
-![](RUKE_F.jpg)
-
-
-##### 俯视
-
-![](RUKE_T.jpg)
-
-##### 左视
-
-![](RUKE.jpg)
+![](RUKE.png)
 
 
 ## 硬件模块及工具清单：
